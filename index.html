@@ -3,15 +3,37 @@
 <head>
 <title>Top 250 Movies Visualization</title>
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<style>
+body { font-family: 'Alegreya Sans', Calibri, sans-serif; }
+svg { border: solid #ccc 1px; }
+line.actualValue { stroke: #008837; stroke-width: 4; opacity: 0.3; stroke-dasharray: 1 6; stroke-linecap: round; }
+line.meanValue { stroke: #7b3294; stroke-width: 4; opacity: 0.3; }
+.bar rect {
+  fill: darkred;
+}
+.bar text {
+  fill: #fff;
+  font: 10px sans-serif;
+}
+svg { border: solid black 1px; }
 
+</style>
 </head>
 <body>
 <h1>Top 250 Movies Of All Time</h1>
-<div id="plot"></div>
+<svg id="revenue-graph"></svg>
 <script>
 
 function mutateRow(row) {
   row["Date"] = new Date(row["Date"]);
+  if(row["Gross"]=="N/A"){
+  	row["Revenue"] = 0;
+  }
+  else{
+  	row["Revenue"] = Number(row["Gross"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
+  }
+  row["Rating"] = Number(row["Rating"]);
+  row["Year"] = Number(row["Year"]);
   console.log(row);
   return row;
 }
@@ -22,8 +44,8 @@ function callback(error, data){
 	var width = 1000;
 	var padding = 40;
     var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
-
-	var svg = d3.select("svg")
+    console.log(data);
+	var svg = d3.select("#revenue-graph")
 	.attr("height", height + 2 * padding)
     .attr("width", width + 2 * padding)
     .attr("padding", "3px");
@@ -36,13 +58,14 @@ function callback(error, data){
     .domain([0, d3.max(data, function(d) { return d.Revenue; })])
     .range([height, 0]);	
 
-    var bar = g.selectAll(".bar")
+   var groups = g.selectAll("g")
   	.data(data)
   	.enter().append("g")
     .attr("class", "bar")
     .attr("transform", function(d) { return translate(xScale(d.Date), yScale(d.Revenue)); });
 
-    bar.append("rect")
+
+    var rects = groups.append("rect")
     .attr("x", 1)
     .attr("width", 2)
     .attr("height", function(d) { return height - yScale(d.Revenue); });
