@@ -24,6 +24,8 @@ for index,movie in enumerate(top250):
 	# print(director)
 	rating = soup.select_one("span[itemprop=ratingValue]").text
 	# print(rating)
+	date = soup.select_one("meta[itemprop=datePublished]")['content']
+	print(date)
 	year = soup.select_one("meta[itemprop=datePublished]")['content'][:4]
 	# print(year)
 	summary = soup.select_one("div[itemprop=description]").text.strip()
@@ -59,9 +61,9 @@ for index,movie in enumerate(top250):
 		except:
 			revenue = "N/A"
 	# print(revenue)
-	row = [movie.movieID,title,director,rating,year,summary,runtime,small_poster,big_poster,genre,budget,revenue]
+	row = [movie.movieID,title,director,rating,date,year,summary,runtime,small_poster,big_poster,genre,budget,revenue]
 	# writer.writerow(row)
 	rows.append(row)
 pickle.dump(rows, open( "save.p", "wb" ) )
 df = pd.DataFrame(rows)
-df.to_csv("test3.csv")
+df.to_csv("withdate.csv")
