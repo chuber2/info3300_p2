@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Top 250 Movies Visualization</title>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+</head>
+<body>
+<h1>Top 250 Movies Of All Time</h1>
+<div id="plot"></div>
+<script>
+
+function mutateRow(row) {
+  row["Date"] = new Date(row["Date"]);
+  console.log(row);
+  return row;
+}
+
+function callback(error, data){
+
+	var height = 400;
+	var width = 1000;
+	var padding = 40;
+    var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
+
+	var svg = d3.select("svg")
+	.attr("height", height + 2 * padding)
+    .attr("width", width + 2 * padding)
+    .attr("padding", "3px");
+
+    var g = svg.append("g").attr("transform", translate(padding,padding));
+	var xScale = d3.scaleTime()
+    .domain(d3.extent(data, d => d.Date))
+    .range([0, width]);
+	var yScale = d3.scaleLinear()
+    .domain([0, d3.max(data, function(d) { return d.Revenue; })])
+    .range([height, 0]);	
+
+    var bar = g.selectAll(".bar")
+  	.data(data)
+  	.enter().append("g")
+    .attr("class", "bar")
+    .attr("transform", function(d) { return translate(xScale(d.Date), yScale(d.Revenue)); });
+
+    bar.append("rect")
+    .attr("x", 1)
+    .attr("width", 2)
+    .attr("height", function(d) { return height - yScale(d.Revenue); });
+
+    g.append("g")
+    .attr("transform", translate(0,height))
+    .call(d3.axisBottom(xScale));
+    g.append("g")
+    .attr("transform", translate(0,0))
+    .call(d3.axisLeft(yScale));
+}
+
+d3.csv("data.csv", mutateRow, callback);
+
+</script>
+</body>
+</html>
