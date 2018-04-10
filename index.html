@@ -114,6 +114,10 @@
 
   <script>
       var test;
+      var isAbsolute = true;
+      var isDate = true;
+      var ticket_data;
+      var movie_data;
   //var fisheye = d3.fisheye.cartesian()
   
   //Prepares the raw ImDB data scraped from webpages.
@@ -130,6 +134,7 @@
     }
     row["Rating"] = Number(row["Rating"]);
     row["Year"] = Number(row["Year"]);
+    row["Rank"] = row[""];
     //console.log(row);
     return row;
   }
@@ -157,23 +162,40 @@ function calculateInflation(d, _ticketMap) {
     
 }
 
-//Called with an html button onClick. Toggles the Revenue between adjusted for inflation and not.
-function changeRevenue() {
-    console.log("changeRevenue was called!!")
-    var state = d3.select("#inflation_toggle").attr("value")
+//Called with the Y-select onChange. Toggles the Revenue between adjusted for inflation and not.
+function change() {
+    
+    console.log("change was called!!")
+    var state = d3.select("#y_select").node().value
     if( state == "absolute") {
-        state = "inflated";
-        isAbsolute = false;
+        isAbsolute = true
+        console.log(isAbsolute);
+      
     } else if (state == "inflated"){
-        state = "absolute";
-        isAbsolute = true;
+        isAbsolute = false;
+        console.log(isAbsolute);
+
     }
     
+    var stateX =  d3.select("#x_select").node().value
+    if( stateX == "date") {
+        isDate = true;
+        console.log(isDate);
+      
+    } else if (stateX == "rank"){
+        isDate = false;
+        console.log(isDate);
+    }
     
+    d3.queue()
+        .defer(d3.tsv, "ticket_inflation.txt", mutateRowToo)
+        .defer(d3.csv, "data.csv", mutateRow)
+        .await(callback);
 }
 
   function callback(error, ticketData, movieData){
-
+    ticket_data = ticketData;
+    movie_data  = movieData;
     //debugging
     console.log(movieData);
     console.log(ticketData);
@@ -192,13 +214,23 @@ function changeRevenue() {
       
     /*create an array map from the ticket data for easy look up*/
     var ticketMap = d3.map(ticketData, function(d) {return d.Year ; });
-      test = ticketMap;
-    console.log(ticketMap)
+     /* test = ticketMap;
+    console.log(ticketMap)*/
 
     var g = svg.append("g").attr("transform", translate(horz_padding,vert_padding));
-    var xScale = d3.scaleTime()
+    /*var xScale = d3.scaleTime()
     .domain(d3.extent(movieData, d => d.Date))
-    .range([0, width]);
+    .range([0, width]);*/
+    console.log(isDate)
+    var date_scale = d3.scaleTime()
+        .domain(d3.extent(movieData, d => d.Date))
+        .range([0, width]);
+    var rank_scale = d3.scaleLinear()
+        .domain(d3.extent(movieData, d=> d.Rank))
+        .range([0, width]);
+    var xScale = isDate ? date_scale : rank_scale
+    
+    
     var yScale = d3.scaleLinear()
     .domain([0, d3.max(movieData, function(d) { return d.Revenue; })])
     .range([height, 0]);
@@ -226,11 +258,6 @@ function changeRevenue() {
       document.getElementById("moviePoster").src = d.Small_Poster
     });
 
-    // var circlesGroups = g.selectAll("g")
-    // .data(data)
-    // .enter().append("g")
-    // .attr("class", "circle")
-    // .attr("transform", function(d) { return translate(xScale(d.Date), yScale(d.Revenue)); });
 
     var circles = groups.append("circle")
     .attr("cx", 1)
@@ -275,5 +302,19 @@ d3.queue()
 </script>
     
 <button id = "inflation_toggle" onclick="changeRevenue()" value = "absolute"> Adjust the Revenue for Inflation </button>
+<label for = "y_select"> Y-Axis Variable</label>
+<select id="y_select" onchange= "change()">
+    <option selected = 
+            "selected" value = "absolute">Unadjusted Revenue</option>
+    <option value = "inflated">Revenue adjusted for Inflation</option>
+</select>
+    
+<label for = "x_select"> X-Axis Variable</label>
+<select id="x_select" onchange = "change()">
+    <option selected = 
+            "selected" value = "date">Date</option>
+    <option value = "rank">IMDB rank</option>
+   
+</select>
 </body>
 </html>
