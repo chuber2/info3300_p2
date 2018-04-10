@@ -145,12 +145,30 @@
 
 //Calculates a movies inflation-adjusted gross, in 2018 dollars
 function calculateInflation(d, _ticketMap) {
-    //Divide movie's original gross by the average ticket price in the year it was released
+    //Divide movie's original revenue by the average ticket price in the year it was released
     originalYear = d.Year
-    num_tickets_sold = d.Gross / _ticketMap.get(String(originalYear)).avg_ticket
+    num_tickets_sold = d.Revenue / _ticketMap.get(String(originalYear)).avg_ticket
     //this is now an estimate of how many tickets were sold
     //multiply this number by the cost of a ticket in 2018.
     ticket_2018  = _ticketMap.get("2018").avg_ticket
+    adjusted_revenue = num_tickets_sold * ticket_2018;
+    
+    return adjusted_revenue;
+    
+}
+
+//Called with an html button onClick. Toggles the Revenue between adjusted for inflation and not.
+function changeRevenue() {
+    console.log("changeRevenue was called!!")
+    var state = d3.select("#inflation_toggle").attr("value")
+    if( state == "absolute") {
+        state = "inflated";
+        isAbsolute = false;
+    } else if (state == "inflated"){
+        state = "absolute";
+        isAbsolute = true;
+    }
+    
     
 }
 
@@ -255,5 +273,7 @@ d3.queue()
 .defer(d3.csv, "data.csv", mutateRow)
 .await(callback);
 </script>
+    
+<button id = "inflation_toggle" onclick="changeRevenue()" value = "absolute"> Adjust the Revenue for Inflation </button>
 </body>
 </html>
