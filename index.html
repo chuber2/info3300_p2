@@ -117,11 +117,14 @@
   //var fisheye = d3.fisheye.cartesian()
 
   function mutateRow(row) {
+    
     row["Date"] = new Date(row["Date"]);
+      
     if(row["Gross"]=="N/A"){
       row["Revenue"] = 0;
     }
     else{
+      //format the dollar amount into a nice number
       row["Revenue"] = Number(row["Gross"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
     }
     row["Rating"] = Number(row["Rating"]);
@@ -134,15 +137,16 @@
 
     var height = 400;
     var width = 1000;
-    var padding = 40;
+    var vert_padding = 30;
+    var horz_padding = 90;
     var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
     console.log(data);
     var svg = d3.select("#revenue-graph")
-    .attr("height", height + 2 * padding)
-    .attr("width", width + 2 * padding)
+    .attr("height", height + 2 * vert_padding)
+    .attr("width", width + 2 * horz_padding)
     .attr("padding", "3px");
 
-    var g = svg.append("g").attr("transform", translate(padding,padding));
+    var g = svg.append("g").attr("transform", translate(horz_padding,vert_padding));
     var xScale = d3.scaleTime()
     .domain(d3.extent(data, d => d.Date))
     .range([0, width]);

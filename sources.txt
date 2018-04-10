@@ -1,0 +1,5 @@
+inflation rate data from:
+https://data.bls.gov/timeseries/CUUR0000SA0
+
+movie data scraped from:
+imdb.com
