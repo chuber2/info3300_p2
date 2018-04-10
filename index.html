@@ -113,7 +113,7 @@
   </div>
 
   <script>
-
+      var test;
   //var fisheye = d3.fisheye.cartesian()
   
   //Prepares the raw ImDB data scraped from webpages.
@@ -130,7 +130,7 @@
     }
     row["Rating"] = Number(row["Rating"]);
     row["Year"] = Number(row["Year"]);
-    console.log(row);
+    //console.log(row);
     return row;
   }
 
@@ -138,21 +138,44 @@
   function mutateRowToo(row) {
       row["Year"] = Number(row["Year"]);
       row["avg_ticket"] = Number(row["avg_ticket"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
-      console.log(row)
+      console.log(row);
+      
+      return row;
+}
+
+//Calculates a movies inflation-adjusted gross, in 2018 dollars
+function calculateInflation(d, _ticketMap) {
+    //Divide movie's original gross by the average ticket price in the year it was released
+    originalYear = d.Year
+    num_tickets_sold = d.Gross / _ticketMap.get(String(originalYear)).avg_ticket
+    //this is now an estimate of how many tickets were sold
+    //multiply this number by the cost of a ticket in 2018.
+    ticket_2018  = _ticketMap.get("2018").avg_ticket
+    
 }
 
   function callback(error, ticketData, movieData){
 
+    //debugging
+    console.log(movieData);
+    console.log(ticketData);
+    
+    /*SVG formatting and setup*/  
     var height = 400;
     var width = 1000;
     var vert_padding = 30;
     var horz_padding = 90;
     var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
-    console.log(movieData);
+    
     var svg = d3.select("#revenue-graph")
     .attr("height", height + 2 * vert_padding)
     .attr("width", width + 2 * horz_padding)
     .attr("padding", "3px");
+      
+    /*create an array map from the ticket data for easy look up*/
+    var ticketMap = d3.map(ticketData, function(d) {return d.Year ; });
+      test = ticketMap;
+    console.log(ticketMap)
 
     var g = svg.append("g").attr("transform", translate(horz_padding,vert_padding));
     var xScale = d3.scaleTime()
@@ -195,9 +218,9 @@
     .attr("cx", 1)
     .attr("r", function (d) {
       var budget = (d.Budget.replace(/,|\$/g, ''))
-      console.log(budget);
+      //console.log(budget);
       var gross = (d.Gross.replace(/,|\$/g, ''))
-      console.log(gross);
+      //console.log(gross);
       return 5*Math.log((gross/budget));})
     .attr("cy", 0)//function(d) { return height - yScale(d.Revenue); })
     .style("opacity", .3)
