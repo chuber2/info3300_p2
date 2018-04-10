@@ -134,7 +134,7 @@
     }
     row["Rating"] = Number(row["Rating"]);
     row["Year"] = Number(row["Year"]);
-    row["Rank"] = row[""];
+    
     //console.log(row);
     return row;
   }
@@ -187,6 +187,7 @@ function change() {
         console.log(isDate);
     }
     
+    //update the graph to reflect the change in state.
     d3.queue()
         .defer(d3.tsv, "ticket_inflation.txt", mutateRowToo)
         .defer(d3.csv, "data.csv", mutateRow)
@@ -194,8 +195,7 @@ function change() {
 }
 
   function callback(error, ticketData, movieData){
-    ticket_data = ticketData;
-    movie_data  = movieData;
+    
     //debugging
     console.log(movieData);
     console.log(ticketData);
@@ -235,11 +235,13 @@ function change() {
     .domain([0, d3.max(movieData, function(d) { return d.Revenue; })])
     .range([height, 0]);
 
+    
     var groups = g.selectAll("g")
     .data(movieData)
     .enter().append("g")
     .attr("class", "bar")
-    .attr("transform", function(d) { return translate(xScale(d.Date), yScale(d.Revenue)); });
+    .attr("transform", function(d) { return translate(xScale(isDate ? d.Date : d.Rank), yScale(d.Revenue)); });
+    
 
 
     var rects = groups.append("rect")
