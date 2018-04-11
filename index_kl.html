@@ -167,13 +167,16 @@
       .attr("width", width)
       .attr("height", height);
 
+      var startDate = new Date(1900,01,01);
+      var endDate = Date.now();
       //setting up scales
-      var xScale = d3.scale.linear()
-      .domain(d3.extent(data, d => d.Year))
+      var xScale = d3.time.scale()
+      .domain([startDate, endDate])
       .range([0, width]);
-      var xScaleFishEye = d3.fisheye.scale(d3.scale.linear)
-      .domain(d3.extent(data, d => d.Year))
-      .range([0, width]).focus(90).distortion(6);
+      console.log(startDate, endDate);
+      var xScaleFishEye = d3.fisheye.scale(d3.time.scale)
+      .domain([startDate, endDate])
+      .range([0, width]).focus(90).distortion(10);
       var yScale = d3.scale.linear()
       .domain([0, d3.max(data, function(d) { return d.Revenue; })])
       .range([height, 0]);
@@ -181,24 +184,45 @@
       //setting up axes
       var xAxis = d3.svg.axis().scale(xScaleFishEye).orient("bottom");
       var yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+      //Adding axes to svg
       svg.append("g")
       .attr("transform", translate(0,height))
       .attr("class", "x axis")
       .call(xAxis);
-
       svg.append("g")
       .attr("class", "y axis")
       .call(yAxis);
 
+      // var xLine = svg.selectAll(".x")
+      //   .data(data)
+      //   .enter().append("line")
+      //   .attr("class", "bar")
+      //   .attr("x1", (d) => xScale(d.Date))
+      //   .attr("x2", (d) => xScale(d.Date))
+      //   .attr("y1",height)
+      //   .attr("y2", d => yScale(d.Revenue))
+      //   // .attr("y2", 0);
+      //   .on("mouseover", function (d) {
+      //     d3.select("#movieTitle").text(d.Title)
+      //     d3.select("#movieDirector").text(d.Director)
+      //     d3.select("#movieRating").text(d.Rating)
+      //     d3.select("#movieYear").text(d.Year)
+      //     d3.select("#movieSummary").text(d.Summary)
+      //     d3.select("#movieGenre").text(d.Genre)
+      //     d3.select("#movieBudget").text(d.Budget)
+      //     d3.select("#movieGross").text(d.Gross)
+      //     console.log(d.Date)
+      //     document.getElementById("moviePoster").src = d.Small_Poster
+      //   });
       var xLine = svg.selectAll(".x")
         .data(data)
-        .enter().append("line")
-        .attr("class", "bar")
-        .attr("x1", (d) => xScale(d.Year))
-        .attr("x2", (d) => xScale(d.Year))
-        .attr("y1",height)
-        .attr("y2", d => yScale(d.Revenue))
-        // .attr("y2", 0);
+        .enter().append("rect")
+        .attr("class", "x")
+        .attr("transform", function(d) { return translate(-1, yScale(d.Revenue)); })
+        .attr("x", (d) => xScale(d.Date))
+        .attr("width",2)
+        .attr("height", (d) => height-yScale(d.Revenue))
         .on("mouseover", function (d) {
           d3.select("#movieTitle").text(d.Title)
           d3.select("#movieDirector").text(d.Director)
@@ -212,33 +236,43 @@
         });
 
       
-      // var rects = groups.append("rect")
-      // .attr("x", -1)
-      // .attr("width", 2)
-      // .attr("height", function(d) { return height - yScale(d.Revenue); })
-      // .on("mouseover", function (d) {
-      //   d3.select("#movieTitle").text(d.Title)
-      //   d3.select("#movieDirector").text(d.Director)
-      //   d3.select("#movieRating").text(d.Rating)
-      //   d3.select("#movieYear").text(d.Year)
-      //   d3.select("#movieSummary").text(d.Summary)
-      //   d3.select("#movieGenre").text(d.Genre)
-      //   d3.select("#movieBudget").text(d.Budget)
-      //   d3.select("#movieGross").text(d.Gross)
-      //   document.getElementById("moviePoster").src = d.Small_Poster
-      // });
+      var circles = svg.selectAll(".circle")
+      .data(data)
+      .enter().append("circle")
+      .attr("cx", (d) => xScale(d.Date))
+      .attr("r", function (d) {
+        var budget = (d.Budget.replace(/,|\$/g, ''))
+        //console.log(budget);
+        var gross = (d.Gross.replace(/,|\$/g, ''))
+        //console.log(gross);
+        return 5*Math.log((gross/budget));})
+      .attr("cy", d => yScale(d.Revenue))//function(d) { return height - yScale(d.Revenue); })
+      .style("opacity", .3)
+      .style("fill", "#489075")
+      .on("mouseover", function (d) {
+        d3.select("#movieTitle").text(d.Title)
+        d3.select("#movieDirector").text(d.Director)
+        d3.select("#movieRating").text(d.Rating)
+        d3.select("#movieYear").text(d.Year)
+        d3.select("#movieSummary").text(d.Summary)
+        d3.select("#movieGenre").text(d.Genre)
+        d3.select("#movieBudget").text(d.Budget)
+        d3.select("#movieGross").text(d.Gross)
+        document.getElementById("moviePoster").src = d.Small_Poster
+      });
 
-      redraw();
+      // redraw();
 
       svg.on("mousemove", function() {
         var mouse = d3.mouse(this);
-        console.log(mouse);
+        // console.log(mouse);
         xScaleFishEye.focus(mouse[0]);
         redraw();
       });
 
       function redraw() {
-        xLine.attr("x1", d =>xScaleFishEye(d.Year)).attr("x2", d=>xScaleFishEye(d.Year));
+        xLine.attr("x", d =>xScaleFishEye(d.Date));
+        circles.attr("cx", d =>xScaleFishEye(d.Date));
         svg.select(".x.axis").call(xAxis);
       }
 
