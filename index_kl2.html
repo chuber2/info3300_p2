@@ -132,7 +132,7 @@
 
   var lineData;
   function callback(error, movieData){
-    lineData = movieData.map(function(value,index) { return {Year: value.Year, Revenue: value.Revenue}; });
+    lineData = movieData.map(function(value,index) { return {Ranking: value.Ranking, Revenue: value.Revenue}; });
     console.log(lineData);
     makeGraph();
   }
@@ -153,10 +153,10 @@
       var graph = svg.append("g").attr("transform", translate(horz_padding,vert_padding));
 
       var xScale = d3.scale.linear()
-      .domain(d3.extent(lineData, d => d.Year))
+      .domain(d3.extent(lineData, d => d.Ranking))
       .range([0, width]);
       var xScaleFishEye = d3.fisheye.scale(d3.scale.linear)
-      .domain(d3.extent(lineData, d => d.Year))
+      .domain(d3.extent(lineData, d => d.Ranking))
       .range([0, width]).focus(90).distortion(.1);
       var yScale = d3.scale.linear()
       .domain([0, d3.max(lineData, function(d) { return d.Revenue; })])
@@ -166,8 +166,8 @@
         .data(lineData)
         .enter().append("line")
         .attr("class", "x")
-        .attr("x1", (d) => xScale(d.Year))
-        .attr("x2", (d) => xScale(d.Year))
+        .attr("x1", (d) => xScale(d.Ranking))
+        .attr("x2", (d) => xScale(d.Ranking))
         .attr("y1",height)
         .attr("y2", d => yScale(d.Revenue))
               // .attr("y2", 0);
@@ -215,7 +215,7 @@
       });
 
       function redraw() {
-        xLine.attr("x1", d =>xScaleFishEye(d.Year)).attr("x2", d=>xScaleFishEye(d.Year));
+        xLine.attr("x1", d =>xScaleFishEye(d.Ranking)).attr("x2", d=>xScaleFishEye(d.Ranking));
       }
 
       graph.append("g")

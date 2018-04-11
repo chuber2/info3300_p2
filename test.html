@@ -48,18 +48,17 @@ text {
 <div id="chart3"></div>
 <script>
 var width = 960,
-      height = 180,
+      height = 800,
       xSteps = d3.range(10, width, 16),
       ySteps = d3.range(10, height, 16);
 
-  var xFisheye = d3.fisheye.scale(d3.scale.linear).domain([0, width]).range([0,width]).focus(360).distortion(10),
-      yFisheye = d3.scale.identity().domain([0, height]);
+  var xFisheye = d3.fisheye.scale(d3.scale.linear).domain([0, width]).range([0,width]).focus(360).distortion(60);
 
   var svg = d3.select("#chart3").append("svg")
       .attr("width", width)
       .attr("height", height)
-    .append("g")
-      .attr("transform", "translate(-.5,-.5)");
+    .append("g");
+      // .attr("transform", "translate(-.5,-.5)");
 
   svg.append("rect")
       .attr("class", "background")

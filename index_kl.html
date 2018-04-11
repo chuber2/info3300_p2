@@ -58,6 +58,15 @@
   shape-rendering: crispEdges;
 }
 
+  #revenue-graph .bar{
+    stroke: darkred;
+    stroke-width: 5;
+
+  }
+  .background {
+  fill: none;
+  pointer-events: all;
+}
 
 </style>
 </head>
@@ -130,65 +139,79 @@
     return row;
   }
 
-  var lineData;
+  var data;
   function callback(error, movieData){
-    lineData = movieData.map(function(value,index) { return {Year: value.Year, Revenue: value.Revenue}; });
-    console.log(lineData);
+    data=movieData;
     makeGraph();
   }
 
   function makeGraph(){
-     /*SVG formatting and setup*/  
-       var height = 400;
-        var width = 600;
+
+      //SVG formatting and setup
+      var height = 400;
+      var width = 600;
       var vert_padding = 30;
       var horz_padding = 90;
       var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
       
+      //creating svg, setting origin according to padding
       var svg = d3.select("#revenue-graph")
       .attr("height", height + 2 * vert_padding)
       .attr("width", width + 2 * horz_padding)
-      .attr("padding", "3px");
+      .attr("padding", "3px")
+      .append("g").attr("transform", translate(horz_padding,vert_padding));
 
-      var graph = svg.append("g").attr("transform", translate(horz_padding,vert_padding));
+      //background for mouse move
+      svg.append("rect")
+      .attr("class", "background")
+      .attr("width", width)
+      .attr("height", height);
 
+      //setting up scales
       var xScale = d3.scale.linear()
-      .domain(d3.extent(lineData, d => d.Year))
+      .domain(d3.extent(data, d => d.Year))
       .range([0, width]);
       var xScaleFishEye = d3.fisheye.scale(d3.scale.linear)
-      .domain(d3.extent(lineData, d => d.Year))
-      .range([0, width]).focus(90).distortion(.1);
+      .domain(d3.extent(data, d => d.Year))
+      .range([0, width]).focus(90).distortion(6);
       var yScale = d3.scale.linear()
-      .domain([0, d3.max(lineData, function(d) { return d.Revenue; })])
+      .domain([0, d3.max(data, function(d) { return d.Revenue; })])
       .range([height, 0]);
-      console.log(lineData);
-      var xLine = graph.selectAll(".x")
-        .data(lineData)
+
+      //setting up axes
+      var xAxis = d3.svg.axis().scale(xScaleFishEye).orient("bottom");
+      var yAxis = d3.svg.axis().scale(yScale).orient("left");
+      svg.append("g")
+      .attr("transform", translate(0,height))
+      .attr("class", "x axis")
+      .call(xAxis);
+
+      svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+      var xLine = svg.selectAll(".x")
+        .data(data)
         .enter().append("line")
-        .attr("class", "x")
+        .attr("class", "bar")
         .attr("x1", (d) => xScale(d.Year))
         .attr("x2", (d) => xScale(d.Year))
         .attr("y1",height)
         .attr("y2", d => yScale(d.Revenue))
-              // .attr("y2", 0);
-        // .on("mouseover", function (d) {
-        //   d3.select("#movieTitle").text(d.Title)
-        //   d3.select("#movieDirector").text(d.Director)
-        //   d3.select("#movieRating").text(d.Rating)
-        //   d3.select("#movieYear").text(d.Year)
-        //   d3.select("#movieSummary").text(d.Summary)
-        //   d3.select("#movieGenre").text(d.Genre)
-        //   d3.select("#movieBudget").text(d.Budget)
-        //   d3.select("#movieGross").text(d.Gross)
-        //   document.getElementById("moviePoster").src = d.Small_Poster
-        // });
+        // .attr("y2", 0);
+        .on("mouseover", function (d) {
+          d3.select("#movieTitle").text(d.Title)
+          d3.select("#movieDirector").text(d.Director)
+          d3.select("#movieRating").text(d.Rating)
+          d3.select("#movieYear").text(d.Year)
+          d3.select("#movieSummary").text(d.Summary)
+          d3.select("#movieGenre").text(d.Genre)
+          d3.select("#movieBudget").text(d.Budget)
+          d3.select("#movieGross").text(d.Gross)
+          document.getElementById("moviePoster").src = d.Small_Poster
+        });
 
-      // var groups = graph.selectAll("g")
-      // .data(movieData)
-      // .enter().append("g")
-      // .attr("class", "bar")
-      // .attr("transform", function(d) { return translate(xScale(d.Date), yScale(d.Revenue)); });
-
+      
       // var rects = groups.append("rect")
       // .attr("x", -1)
       // .attr("width", 2)
@@ -205,9 +228,9 @@
       //   document.getElementById("moviePoster").src = d.Small_Poster
       // });
 
-      // redraw();
+      redraw();
 
-      graph.on("mousemove", function() {
+      svg.on("mousemove", function() {
         var mouse = d3.mouse(this);
         console.log(mouse);
         xScaleFishEye.focus(mouse[0]);
@@ -216,16 +239,10 @@
 
       function redraw() {
         xLine.attr("x1", d =>xScaleFishEye(d.Year)).attr("x2", d=>xScaleFishEye(d.Year));
+        svg.select(".x.axis").call(xAxis);
       }
 
-      graph.append("g")
-      .attr("transform", translate(0,height))
-      .attr("class", "x axis")
-      .call(d3.svg.axis().scale(xScale).orient("bottom"));
-      graph.append("g")
-      .attr("transform", translate(0,0))
-      .attr("class", "y axis")
-      .call(d3.svg.axis().scale(yScale).orient("left"));
+
   }
 
   d3.csv("data.csv", mutateRow, callback);
