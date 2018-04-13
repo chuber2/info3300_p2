@@ -62,17 +62,44 @@
   function mutateRow(row) {
     
     row["Date"] = new Date(row["Date"]);
-      
+    
+    //Clean the "Gross" row and store the numberized version in "Revenue"
+    row["Gross"] = row["Gross"].trim();
     if(row["Gross"]=="N/A"){
       row["Revenue"] = 0;
     }
     else{
-      //format the dollar amount into a nice number
+      //strip $ ,  and spaces to make a nice number.
       row["Revenue"] = Number(row["Gross"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
     }
-    row["Rating"] = Number(row["Rating"]);
+    
+    //Clean the "Budget" row and store the numberized version in "Budget" 
+    row["Budget"] = row["Budget"].trim();
+    if(row["Budget"] == "N/A"){
+        row["Cost"] = 0;
+    }
+    else{
+        //numberize the monetary amount
+        row["Cost"] = Number(row["Budget"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
+    }
+      
+    //numberize the ranking and year
+    row["Ranking"] = Number(row["Ranking"]);
     row["Year"] = Number(row["Year"]);
+    row["Rating"] = Number(row["Rating"]);
+    
+    //calculate profit and yield from Number type rows.
+    row["Profit"] = row["Revenue"] - row["Cost"];
+    row["Yield"] = row["Revenue"]/row["Cost"];
+    
+    //filter divide by zeros and NaN
+    if(row["Yield"] == Infinity || isNaN(row["Yield"])) {
+        row["Yield"] = 0;
+    }
+    
     //console.log(row);
+    //console.log(row);
+    //console.log(row["Yield"]);
     return row;
   }
 
@@ -108,7 +135,8 @@
       .attr("height", height);
 
       var startDate = new Date(1900,01,01);
-      var endDate = Date.now();
+      //var endDate = Date.now();
+      var endDate = new Date(2030, 01, 01);
       //setting up scales
       var xScale = d3.time.scale()
       .domain([startDate, endDate])
@@ -120,6 +148,9 @@
       var yScale = d3.scale.linear()
       .domain([0, d3.max(data, function(d) { return d.Revenue; })])
       .range([height, 0]);
+      var radiusScale = d3.scale.sqrt()
+      .domain([0, d3.max(data, function(d) {return d.Yield})])
+      .range([0, 50])
 
       //setting up axes
       var xAxis = d3.svg.axis().scale(xScaleFishEye).orient("bottom");
@@ -182,12 +213,7 @@
       .data(data)
       .enter().append("circle")
       .attr("cx", (d) => xScale(d.Date))
-      .attr("r", function (d) {
-        var budget = (d.Budget.replace(/,|\$/g, ''))
-        //console.log(budget);
-        var gross = (d.Gross.replace(/,|\$/g, ''))
-        //console.log(gross);
-        return 5*Math.log((gross/budget));})
+      .attr("r", function(d) { return radiusScale(d.Yield)}) 
       .attr("cy", d => yScale(d.Revenue))//function(d) { return height - yScale(d.Revenue); })
       .style("opacity", .3)
       .style("fill", "#489075")
@@ -219,7 +245,7 @@
         svg.select(".x.axis").call(xAxis);
       }
 
-      svg.on("mouseout", function() {
+     /* svg.on("mouseout", function() {
           
           redrawClean();
       });
@@ -229,7 +255,7 @@
         circles.attr("cx", d =>xScale(d.Date));
         xAxis = d3.svg.axis().scale(xScale).orient("bottom");
         svg.select(".x.axis").call(xAxis);
-      }
+      }*/
       
   }
 
