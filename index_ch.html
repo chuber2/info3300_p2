@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Top 250 Movies Visualization</title>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script src="fisheye.js"></script>
+   <link rel = "stylesheet" type = "text/css" href = "style.css" />
+    <link href="https://fonts.googleapis.com/css?family=Cinzel+Decorative|Roboto" rel="stylesheet">
+</head>
+<body>
+  <h1>Top 250 Movies Of All Time</h1>
+  <svg id="revenue-graph"></svg>
+  <div class="movieInfo">
+    <div class="movieDescriptions">
+      <table>
+        <tr>
+          <th>Title</th>
+          <td id="movieTitle">Movie Title</td>
+        </tr>
+        <tr>
+          <th>Director</th>
+          <td id="movieDirector">Director</td>
+        </tr>
+        <tr>
+          <th>Rating</th>
+          <td id="movieRating">Rating</td>
+        </tr>
+        <tr>
+          <th>Year</th>
+          <td id="movieYear">Year</td>
+        </tr>
+        <tr>
+          <th>Summary</th>
+          <td id="movieSummary">
+            <br>
+            <br><br><br><br><br>
+          </td>
+        </tr>
+        <tr>
+          <th>Genre</th>
+          <td id="movieGenre">Genre</td>
+        </tr>
+        <tr>
+          <th>Budget</th>
+          <td id="movieBudget">Budget</td>
+        </tr>
+        <tr>
+          <th>Gross</th>
+          <td id="movieGross">Gross</td>
+        </tr>
+
+      </table>
+    </div>
+
+    <img id="moviePoster" src="http://www.backgroundsbymaheu.com/_resources/common/products/full/thumb.aspx?src=kelly+dark+gray%2Ejpg&width=350&crop=false" alt="Movie Poster">
+
+  </div>
+
+  <script>
+  
+  //Prepares the raw ImDB data scraped from webpages.
+  function mutateRow(row) {
+    
+    row["Date"] = new Date(row["Date"]);
+      
+    if(row["Gross"]=="N/A"){
+      row["Revenue"] = 0;
+    }
+    else{
+      //format the dollar amount into a nice number
+      row["Revenue"] = Number(row["Gross"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
+    }
+    row["Rating"] = Number(row["Rating"]);
+    row["Year"] = Number(row["Year"]);
+    //console.log(row);
+    return row;
+  }
+
+  var data;
+  function callback(error, movieData){
+    data=movieData;
+    makeGraph();
+  }
+
+  function makeGraph(){
+
+      //SVG formatting and setup
+      var height = 400;
+      var width = 800;
+      var vert_padding = 30;
+      var left_padding = 110;
+      var right_padding = 30;
+      var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
+      
+      //creating svg, setting origin according to padding
+      var svg = d3.select("#revenue-graph")
+      .attr("height", height + 2 * vert_padding)
+      .attr("width", width + left_padding + right_padding)
+      .attr("padding", "3px")
+      .append("g")
+        .attr("transform", translate(left_padding,vert_padding))
+        .attr("class", "graph");
+
+      //background for mouse move
+      svg.append("rect")
+      .attr("class", "background")
+      .attr("width", width)
+      .attr("height", height);
+
+      var startDate = new Date(1900,01,01);
+      var endDate = Date.now();
+      //setting up scales
+      var xScale = d3.time.scale()
+      .domain([startDate, endDate])
+      .range([0, width]);
+      console.log(startDate, endDate);
+      var xScaleFishEye = d3.fisheye.scale(d3.time.scale)
+      .domain([startDate, endDate])
+      .range([0, width]).focus(90).distortion(5);
+      var yScale = d3.scale.linear()
+      .domain([0, d3.max(data, function(d) { return d.Revenue; })])
+      .range([height, 0]);
+
+      //setting up axes
+      var xAxis = d3.svg.axis().scale(xScaleFishEye).orient("bottom");
+      var yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+      //Adding axes to svg
+      svg.append("g")
+      .attr("transform", translate(0,height))
+      .attr("class", "x axis")
+      .call(xAxis);
+      svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+      // var xLine = svg.selectAll(".x")
+      //   .data(data)
+      //   .enter().append("line")
+      //   .attr("class", "bar")
+      //   .attr("x1", (d) => xScale(d.Date))
+      //   .attr("x2", (d) => xScale(d.Date))
+      //   .attr("y1",height)
+      //   .attr("y2", d => yScale(d.Revenue))
+      //   // .attr("y2", 0);
+      //   .on("mouseover", function (d) {
+      //     d3.select("#movieTitle").text(d.Title)
+      //     d3.select("#movieDirector").text(d.Director)
+      //     d3.select("#movieRating").text(d.Rating)
+      //     d3.select("#movieYear").text(d.Year)
+      //     d3.select("#movieSummary").text(d.Summary)
+      //     d3.select("#movieGenre").text(d.Genre)
+      //     d3.select("#movieBudget").text(d.Budget)
+      //     d3.select("#movieGross").text(d.Gross)
+      //     console.log(d.Date)
+      //     document.getElementById("moviePoster").src = d.Small_Poster
+      //   });
+      var xLine = svg.selectAll(".x")
+        .data(data)
+        .enter().append("rect")
+            .attr("class", "x")
+            .attr("transform", function(d) { return translate(-4, yScale(d.Revenue)); })
+            .attr("x", (d) => xScale(d.Date))
+            .attr("width",7)
+            //.style("fill", "blue")
+            .style("opacity", .3)
+            .attr("height", (d) => height-yScale(d.Revenue))
+            .on("mouseover", function (d) {
+              d3.select("#movieTitle").text(d.Title)
+              d3.select("#movieDirector").text(d.Director)
+              d3.select("#movieRating").text(d.Rating)
+              d3.select("#movieYear").text(d.Year)
+              d3.select("#movieSummary").text(d.Summary)
+              d3.select("#movieGenre").text(d.Genre)
+              d3.select("#movieBudget").text(d.Budget)
+              d3.select("#movieGross").text(d.Gross)
+              document.getElementById("moviePoster").src = d.Small_Poster
+            });
+
+      
+      var circles = svg.selectAll(".circle")
+      .data(data)
+      .enter().append("circle")
+      .attr("cx", (d) => xScale(d.Date))
+      .attr("r", function (d) {
+        var budget = (d.Budget.replace(/,|\$/g, ''))
+        //console.log(budget);
+        var gross = (d.Gross.replace(/,|\$/g, ''))
+        //console.log(gross);
+        return 5*Math.log((gross/budget));})
+      .attr("cy", d => yScale(d.Revenue))//function(d) { return height - yScale(d.Revenue); })
+      .style("opacity", .3)
+      .style("fill", "#489075")
+      .on("mouseover", function (d) {
+        d3.select("#movieTitle").text(d.Title)
+        d3.select("#movieDirector").text(d.Director)
+        d3.select("#movieRating").text(d.Rating)
+        d3.select("#movieYear").text(d.Year)
+        d3.select("#movieSummary").text(d.Summary)
+        d3.select("#movieGenre").text(d.Genre)
+        d3.select("#movieBudget").text(d.Budget)
+        d3.select("#movieGross").text(d.Gross)
+        document.getElementById("moviePoster").src = d.Small_Poster
+      });
+
+      // redraw();
+
+      svg.on("mousemove", function() {
+        var mouse = d3.mouse(this);
+        // console.log(mouse);
+        xScaleFishEye.focus(mouse[0]);
+        redraw();
+      });
+
+      function redraw() {
+        xLine.attr("x", d =>xScaleFishEye(d.Date));
+        circles.attr("cx", d =>xScaleFishEye(d.Date));
+        xAxis = d3.svg.axis().scale(xScaleFishEye).orient("bottom");
+        svg.select(".x.axis").call(xAxis);
+      }
+
+      svg.on("mouseout", function() {
+          
+          redrawClean();
+      });
+      
+      function redrawClean() {
+        xLine.attr("x", d =>xScale(d.Date));
+        circles.attr("cx", d =>xScale(d.Date));
+        xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+        svg.select(".x.axis").call(xAxis);
+      }
+      
+  }
+
+  d3.csv("data.csv", mutateRow, callback);
+
+</script>
+    
+</body>
+</html>

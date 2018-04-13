@@ -1,0 +1,99 @@
+/*Style sheet for INFO 3300 pro*/
+
+/*font-family: 'Cinzel Decorative', cursive;
+font-family: 'Roboto', sans-serif;*/
+
+/*************GENERAL STYLINGS***************************************/
+body { 
+    font-family: 'Roboto', sans-serif, Calibri, sans-serif;
+    background-color: #020234;
+    color: white;
+}
+
+
+h1 {
+    text-align: center;
+    font-family: 'Cinzel Decorative', cursive;
+}
+
+svg {
+    background: linear-gradient(to bottom left, #020234, #6529BC);
+   /* background:  -webkit-linear-gradient(red, yellow);*/
+    pointer-events: all;
+    fill: white
+    
+}
+
+.background {
+    fill: none
+}
+
+
+/******************Stylings for the INFO BOX***********/
+div.movieInfo {
+/*    border: solid black 1px;*/
+    width: 500px;
+    padding: 10px;
+    height: 440px;
+    /* max-width: 100%; */
+    max-height: 100%;
+    display: inline-block;
+    margin-left: 2em;
+}
+
+p.movieText {
+    padding-left: 10px;
+}
+h5 {
+    display: inline;
+}
+th {
+    vertical-align: top;
+    text-align: right;
+    padding-right: 30px;
+    font-family: 'Cinzel Decorative', cursive;
+    /* border: solid black 1px; */
+}
+td {
+    border: none;
+    width: 100%;
+    text-align: left;
+}
+#movieSummary {
+    font-size: 15px;
+}
+table{
+    height: 100%;
+}
+
+#moviePoster {
+    width: 182px;
+    height: 268px;
+    float: left;
+}
+div.movieDescriptions{
+    float: right;
+    width: 300px;
+}
+/*end of stylings for the INFO BOX*************/
+
+#revenue-graph path, #revenue-graph line {
+    fill: none;
+    stroke: #333;
+}
+
+#revenue-graph line {
+    shape-rendering: crispEdges;
+}
+
+#revenue-graph .bar{
+    stroke: darkred;
+    stroke-width: 5;
+
+}
+
+
+.x + rect{
+    fill: #e9e948;
+}
+
