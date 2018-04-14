@@ -106,26 +106,27 @@
   var data;
   function callback(error, movieData){
     data=movieData;
-    makeGraph();
+    makeGraph(movieData);
   }
 
-  function makeGraph(){
+  function makeGraph(_data){
 
       //SVG formatting and setup
       var height = 400;
       var width = 800;
-      var vert_padding = 30;
-      var left_padding = 110;
+      var top_padding = 30;
+      var left_padding = 90;
       var right_padding = 30;
+      var bot_padding = 40;
       var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
       
       //creating svg, setting origin according to padding
       var svg = d3.select("#revenue-graph")
-      .attr("height", height + 2 * vert_padding)
+      .attr("height", height + top_padding + bot_padding)
       .attr("width", width + left_padding + right_padding)
       .attr("padding", "3px")
       .append("g")
-        .attr("transform", translate(left_padding,vert_padding))
+        .attr("transform", translate(left_padding,bot_padding))
         .attr("class", "graph");
 
       //background for mouse move
@@ -146,15 +147,21 @@
       .domain([startDate, endDate])
       .range([0, width]).focus(90).distortion(5);
       var yScale = d3.scale.linear()
-      .domain([0, d3.max(data, function(d) { return d.Revenue; })])
+      .domain([0, d3.max(_data, function(d) { return d.Revenue; })])
       .range([height, 0]);
       var radiusScale = d3.scale.sqrt()
-      .domain([0, d3.max(data, function(d) {return d.Yield})])
+      .domain([0, d3.max(_data, function(d) {return d.Yield})])
       .range([0, 50])
 
       //setting up axes
-      var xAxis = d3.svg.axis().scale(xScaleFishEye).orient("bottom");
-      var yAxis = d3.svg.axis().scale(yScale).orient("left");
+      var formatValue = d3.format("s");
+      var xAxis = d3.svg.axis()
+        .scale(xScaleFishEye)
+        .orient("bottom");
+      var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .tickFormat( function(d) { return formatValue(d).replace('M', ' m').replace('G', ' b')})
+        .orient("left");
 
       //Adding axes to svg
       svg.append("g")
@@ -187,7 +194,7 @@
       //     document.getElementById("moviePoster").src = d.Small_Poster
       //   });
       var xLine = svg.selectAll(".x")
-        .data(data)
+        .data(_data)
         .enter().append("rect")
             .attr("class", "x")
             .attr("transform", function(d) { return translate(-4, yScale(d.Revenue)); })
@@ -210,7 +217,7 @@
 
       
       var circles = svg.selectAll(".circle")
-      .data(data)
+      .data(_data)
       .enter().append("circle")
       .attr("cx", (d) => xScale(d.Date))
       .attr("r", function(d) { return radiusScale(d.Yield)}) 
@@ -262,6 +269,22 @@
   d3.csv("data.csv", mutateRow, callback);
 
 </script>
+    
+<button id = "inflation_toggle" onclick="changeRevenue()" value = "absolute"> Adjust the Revenue for Inflation </button>
+    
+<label for = "y_select"> Y-Axis Variable</label>
+<select id="y_select" onchange= "changeGraph()">
+    <option selected = 
+            "selected" value = "absolute">Unadjusted Revenue</option>
+    <option value = "inflated">Revenue adjusted for Inflation</option>
+</select>
+    
+<label for = "x_select"> X-Axis Variable</label>
+<select id="x_select" onchange = "changeGraph()">
+    <option selected = 
+            "selected" value = "date">Date</option>
+    <option value = "rank">IMDB rank</option>
+</select>
     
 </body>
 </html>
