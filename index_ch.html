@@ -57,12 +57,12 @@
   </div>
 
   <script>
-  
+
   //Prepares the raw ImDB data scraped from webpages.
   function mutateRow(row) {
-    
+
     row["Date"] = new Date(row["Date"]);
-    
+
     //Clean the "Gross" row and store the numberized version in "Revenue"
     row["Gross"] = row["Gross"].trim();
     if(row["Gross"]=="N/A"){
@@ -72,8 +72,8 @@
       //strip $ ,  and spaces to make a nice number.
       row["Revenue"] = Number(row["Gross"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
     }
-    
-    //Clean the "Budget" row and store the numberized version in "Budget" 
+
+    //Clean the "Budget" row and store the numberized version in "Budget"
     row["Budget"] = row["Budget"].trim();
     if(row["Budget"] == "N/A"){
         row["Cost"] = 0;
@@ -82,21 +82,21 @@
         //numberize the monetary amount
         row["Cost"] = Number(row["Budget"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
     }
-      
+
     //numberize the ranking and year
     row["Ranking"] = Number(row["Ranking"]);
     row["Year"] = Number(row["Year"]);
     row["Rating"] = Number(row["Rating"]);
-    
+
     //calculate profit and yield from Number type rows.
     row["Profit"] = row["Revenue"] - row["Cost"];
     row["Yield"] = row["Revenue"]/row["Cost"];
-    
+
     //filter divide by zeros and NaN
     if(row["Yield"] == Infinity || isNaN(row["Yield"])) {
         row["Yield"] = 0;
     }
-    
+
     //console.log(row);
     //console.log(row);
     //console.log(row["Yield"]);
@@ -119,7 +119,7 @@
       var right_padding = 30;
       var bot_padding = 40;
       var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
-      
+
       //creating svg, setting origin according to padding
       var svg = d3.select("#revenue-graph")
       .attr("height", height + top_padding + bot_padding)
@@ -215,12 +215,12 @@
               document.getElementById("moviePoster").src = d.Small_Poster
             });
 
-      
+
       var circles = svg.selectAll(".circle")
       .data(_data)
       .enter().append("circle")
       .attr("cx", (d) => xScale(d.Date))
-      .attr("r", function(d) { return radiusScale(d.Yield)}) 
+      .attr("r", function(d) { return radiusScale(d.Yield)})
       .attr("cy", d => yScale(d.Revenue))//function(d) { return height - yScale(d.Revenue); })
       .style("opacity", .3)
       .style("fill", "#489075")
@@ -253,36 +253,36 @@
       }
 
      /* svg.on("mouseout", function() {
-          
+
           redrawClean();
       });
-      
+
       function redrawClean() {
         xLine.attr("x", d =>xScale(d.Date));
         circles.attr("cx", d =>xScale(d.Date));
         xAxis = d3.svg.axis().scale(xScale).orient("bottom");
         svg.select(".x.axis").call(xAxis);
       }*/
-      
+
   }
 
   d3.csv("data.csv", mutateRow, callback);
 
 </script>
-    
+
 <label for = "y_select"> Y-Axis Variable</label>
 <select id="y_select" onchange= "changeGraph()">
-    <option selected = 
+    <option selected =
             "selected" value = "absolute">Unadjusted Revenue</option>
     <option value = "inflated">Revenue adjusted for Inflation</option>
 </select>
-    
+
 <label for = "x_select"> X-Axis Variable</label>
 <select id="x_select" onchange = "changeGraph()">
-    <option selected = 
+    <option selected =
             "selected" value = "date">Date</option>
     <option value = "rank">IMDB rank</option>
 </select>
-    
+
 </body>
 </html>
