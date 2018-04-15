@@ -66,6 +66,7 @@
   <script>
     
     var ticket_data;
+    var ticket_map;
     var data;
 
   //Prepares the raw ImDB data scraped from webpages.
@@ -152,6 +153,11 @@ function calculateInflation(d, _ticketMap) {
       var right_padding = 30;
       var bot_padding = 40;
       var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
+      
+      /*create an array map from the ticket data for easy look up*/
+      var ticketMap = d3.map(ticketData, function(d) {return d.Year ; });
+      ticket_map = ticketMap;
+      console.log(ticketMap)
 
       //creating svg, setting origin according to padding
       var svg = d3.select("#revenue-graph")
