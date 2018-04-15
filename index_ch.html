@@ -127,7 +127,14 @@
 function calculateInflation(d, _ticketMap) {
     //Divide movie's original revenue by the average ticket price in the year it was released
     originalYear = d.Year
+    
+    //if year does not exist in ticket price lookup table
+    //set it to the price of ticket in 1929
+    if( ! _ticketMap.get(String(originalYear)).avg_ticket) {
+        num_tickets_sold = d.Revenue / _ticketMap.get(String(1929)).avg_ticket
+    } else {
     num_tickets_sold = d.Revenue / _ticketMap.get(String(originalYear)).avg_ticket
+    }
     //this is now an estimate of how many tickets were sold
     //multiply this number by the cost of a ticket in 2018.
     ticket_2018  = _ticketMap.get("2018").avg_ticket
@@ -140,7 +147,10 @@ function calculateInflation(d, _ticketMap) {
   
   function callback(error, ticketData, movieData){
     data=movieData;
+    ticket_data = ticketData;
+    
     makeGraph(movieData);
+   
   }
 
   function makeGraph(_data){
@@ -155,7 +165,7 @@ function calculateInflation(d, _ticketMap) {
       var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
       
       /*create an array map from the ticket data for easy look up*/
-      var ticketMap = d3.map(ticketData, function(d) {return d.Year ; });
+      var ticketMap = d3.map(ticket_data, function(d) {return d.Year ; });
       ticket_map = ticketMap;
       console.log(ticketMap)
 
