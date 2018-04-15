@@ -4,6 +4,7 @@
   <title>Top 250 Movies Visualization</title>
   <script src="https://d3js.org/d3.v3.min.js"></script>
   <script src="fisheye.js"></script>
+    <script src="https://d3js.org/d3-queue.v3.min.js"></script>
    <link rel = "stylesheet" type = "text/css" href = "style.css" />
     <link href="https://fonts.googleapis.com/css?family=Cinzel+Decorative|Roboto" rel="stylesheet">
 </head>
@@ -63,6 +64,9 @@
   </div>
 
   <script>
+    
+    var ticket_data;
+    var data;
 
   //Prepares the raw ImDB data scraped from webpages.
   function mutateRow(row) {
@@ -108,9 +112,32 @@
     //console.log(row["Yield"]);
     return row;
   }
+      
+ //Prepares the average ticket price data.
+  function mutateRowToo(row) {
+      row["Year"] = Number(row["Year"]);
+      row["avg_ticket"] = Number(row["avg_ticket"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
+      console.log(row);
 
-  var data;
-  function callback(error, movieData){
+      return row;
+}
+
+//Calculates a movies inflation-adjusted gross, in 2018 dollars
+function calculateInflation(d, _ticketMap) {
+    //Divide movie's original revenue by the average ticket price in the year it was released
+    originalYear = d.Year
+    num_tickets_sold = d.Revenue / _ticketMap.get(String(originalYear)).avg_ticket
+    //this is now an estimate of how many tickets were sold
+    //multiply this number by the cost of a ticket in 2018.
+    ticket_2018  = _ticketMap.get("2018").avg_ticket
+    adjusted_revenue = num_tickets_sold * ticket_2018;
+
+    return adjusted_revenue;
+
+}
+
+  
+  function callback(error, ticketData, movieData){
     data=movieData;
     makeGraph(movieData);
   }
@@ -272,7 +299,11 @@
 
   }
 
-  d3.csv("data.csv", mutateRow, callback);
+  //d3.csv("data.csv", mutateRow, callback);
+d3.queue()
+    .defer(d3.tsv, "ticket_inflation.txt", mutateRowToo)
+    .defer(d3.csv, "data.csv", mutateRow)
+    .await(callback);
 
 </script>
 
