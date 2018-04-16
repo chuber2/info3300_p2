@@ -61,13 +61,11 @@
               <th>Gross:</th>
               <td id="movieGross">Gross</td>
             </tr>
-            <!-- <tr>
-              <th>Summary:</th>
-              <td id="movieSummary">
-                <br>
-                <br><br><br><br><br>
+            <tr>
+              <th>Tickets Sold:</th>
+              <td id="movieTickets">
               </td>
-            </tr> -->
+            </tr>
 
           </table>
         </div>
@@ -75,32 +73,21 @@
     </div>
 
     </foreignobject>
-    <foreignobject x="1400" y="80" width="300" height="200">
-      <div id="buttonBox">
+    <foreignobject x="1300" y="50" width="300" height="50">
+      <div id="xButton">
       </div>
-    <foreignobject>
+    </foreignobject>
+      <foreignobject x="1300" y="120" width="300" height="50">
+      <div id="yButton"> </div>
+     </foreignobject>
+
   </svg>
 <script>
 
-//Calculates a movies inflation-adjusted gross, in 2018 
-function calculateInflation(d, _ticketMap) {
-    //Divide movie's original revenue by the average ticket price in the year it was released
-    originalYear = d.Year
+//represent current x y axis settings
+var currX = "Date";
+var currY = "Revenue";
 
-    //if year does not exist in ticket price lookup table
-    //set it to the price of ticket in 1929
-    if( ! _ticketMap.get(String(originalYear)).avg_ticket) {
-        num_tickets_sold = d.Revenue / _ticketMap.get(String(1929)).avg_ticket
-    } else {
-    num_tickets_sold = d.Revenue / _ticketMap.get(String(originalYear)).avg_ticket
-    }
-    //this is now an estimate of how many tickets were sold
-    //multiply this number by the cost of a ticket in 2018.
-    ticket_2018  = _ticketMap.get("2018").avg_ticket
-    adjusted_revenue = num_tickets_sold * ticket_2018;
-
-    return adjusted_revenue;
-}
 //Prepares the raw ImDB data scraped from webpages.
 function mutateRow(row) {
 
@@ -160,11 +147,11 @@ function callback(error, movieData){
   data=movieData.filter(function (d){return d.Gross!="N/A" && d.Budget!="N/A";});
   data=data.slice(0,250);
 
-  plot("byDate");
+  plot("byDate","byRevenue");
   // plot("byRank");
 }
 
-function plot(xType){
+function plot(xType,yType){
 
     //SVG formatting and setup
     var height = 750;
@@ -219,9 +206,17 @@ function plot(xType){
       .domain([1,250])
       .range([0, width]).focus(90).distortion(5);
     }
-    var yScale = d3.scale.linear()
-    .domain([1, 1.3*d3.max(data, function(d) { return d.Revenue; })])
-    .range([height, 0]);
+
+    if(yType=="byRevenue"){
+      var yScale = d3.scale.linear()
+      .domain([1, 1.3*d3.max(data, function(d) { return d.Revenue; })])
+      .range([height, 0]);
+    }
+    if(yType=="byAdjusted"){
+      var yScale = d3.scale.linear()
+     .domain([1, 1.3*d3.max(data, function(d) { return d.Adjusted; })])
+     .range([height, 0]);
+    }
     // var yScale = d3.scale.log()
     // .domain([1, 100000*d3.max(data, function(d) { return d.Revenue; })])
     // .range([height, 0]);
@@ -251,7 +246,7 @@ function plot(xType){
     .attr("transform", translate(-70,10))
     .attr("text-anchor","middle")
     .attr("font-weight","800")
-    .text("Revenue");
+    .text((yType=="byRevenue")?"Gross Revenue": "Adjusted Revenue");
 
     svg.append("text")
     .attr("class","axis")
@@ -381,17 +376,17 @@ function plot(xType){
         .attr("x", 60)
         .attr("y", 80);
         
-
+    var formatTickets = d3.format(",.4r");
 
     var xLine = svg.selectAll(".x")
       .data(data)
       .enter().append("rect")
       .attr("class", "x")
       .attr("id", "line_bar")
-      .attr("transform", function(d) { return translate(-1, yScale(d.Revenue)); })
+      .attr("transform", function(d) { return translate(-1, (yType=="byRevenue")? yScale(d.Revenue):yScale(d.Adjusted)); })
       .attr("x", (d) => (xType=="byRank" ? xScale(d.Rank): xScale(d.Date)))
       .attr("width",8)
-      .attr("height", (d) => height-yScale(d.Revenue))
+      .attr("height", (d) => (yType=="byRevenue")? height -yScale(d.Revenue): height - yScale(d.Adjusted))
       .attr("fill", function (d) {
         var budget = (d.Budget.replace(/,|\$/g, ''))
         var gross = (d.Gross.replace(/,|\$/g, ''))
@@ -411,6 +406,7 @@ function plot(xType){
         d3.select("#movieBudget").text(d.Budget)
         d3.select("#movieGross").text(d.Gross)
         d3.select("#movieRanking").text(d.Ranking)
+        d3.select("#movieTickets").text(formatTickets(d.Tickets))
         document.getElementById("moviePoster").src = d.Small_Poster
       });
 
@@ -475,7 +471,7 @@ d3.tsv("ticket_inflation.txt",mutateRowToo,function(error, tdata){
   d3.csv("data.csv", mutateRow, callback);
 
 });
-var q1 = noYesBtns('#buttonBox')
+var q1 = noYesBtns('#xButton')
             .nTxt('Date')
             .yTxt('Rank')
             .nBg('grey') // string for unselected background for NO
@@ -484,12 +480,52 @@ var q1 = noYesBtns('#buttonBox')
             .yBgActive('green') // string for selected bg for YES
             .on('_click', function () {
                 if(this.firstChild.data=="Rank"){
-                  plot("byRank");
+                  currX = "Rank";
+                  if (currY == "Revenue"){
+                    plot("byRank","byRevenue");
+                  }
+                  if (currY == "Adjusted"){
+                    plot("byRank","byAdjusted");
+                  }
                 }
                 if(this.firstChild.data=="Date"){
-                  plot("byDate");
+                  currX = "Date";
+                  if (currY == "Revenue"){
+                    plot("byDate","byRevenue");
+                  }
+                  if (currY == "Adjusted"){
+                    plot("byDate","byAdjusted");
+                  }
                 }
             })
+            .render();
+var q1 = noYesBtns('#yButton')
+            .nTxt('Revenue')
+            .yTxt('Adjusted')
+            .nBg('grey') // string for unselected background for NO
+            .yBg('grey') // string for unselected bg for YES
+            .nBgActive('green') // string for selected bg for NO
+            .yBgActive('green') // string for selected bg for YES
+            .on('_click', function () {
+                if(this.firstChild.data=="Revenue"){
+                  currY = "Revenue";
+                  if (currX == "Rank"){
+                    plot("byRank","byRevenue");
+                  }
+                  if (currX == "Date"){
+                    plot("byDate","byRevenue");
+                  }
+                }
+                if(this.firstChild.data=="Adjusted"){
+                  currY = "Adjusted";
+                  if (currX == "Rank"){
+                    plot("byRank","byAdjusted");
+                  }
+                  if (currX == "Date"){
+                    plot("byDate","byAdjusted");
+                  }
+                }
+             })
             .render();
 </script>
 
