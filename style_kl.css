@@ -24,7 +24,7 @@
   width: 20 %;
 }
 .right {
-  width: 20%;
+  width: 50%;
 }
 
 .middle {
@@ -58,8 +58,8 @@
 }
 #line_bar:hover {
   /* fill: blue; */
-  stroke: orange;
-  stroke-width: 4px;
+  stroke: #07D6E8;
+  stroke-width: 3px;
   stroke-opacity: 1;
 }
 .y.axis{
@@ -120,7 +120,7 @@ button.ny-btn {
     text-align: center;
     text-decoration: none;
     color:  #130C0E; /* black */
-    background-color: #ef2123; /* green */
+    background-color: #ffffff; /* green */
     height:60px;
     width: 140px;
     border-color: black;
