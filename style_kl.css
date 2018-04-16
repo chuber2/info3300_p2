@@ -38,6 +38,7 @@
 #moviePoster{
   height:50px;
   width:50px;
+  border: solid black 1px;
 }
 
 .axis path, .axis line {
@@ -52,7 +53,7 @@
   fill-opacity:1;
    font-family: 'Lato', sans-serif;
 }
-.x:hover {
+#line_bar:hover {
   /* fill: blue; */
   stroke: orange;
   stroke-width: 4px;

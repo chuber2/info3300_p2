@@ -286,6 +286,7 @@ function plot(){
       .data(data)
       .enter().append("rect")
       .attr("class", "x")
+      .attr("id", "line_bar")
       .attr("transform", function(d) { return translate(-1, yScale(d.Revenue)); })
       .attr("x", (d) => xScale(d.Date))
       .attr("width",8)
