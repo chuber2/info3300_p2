@@ -235,7 +235,6 @@ function plot(){
     var xLine = svg.selectAll(".x")
       .data(data)
       .enter().append("rect")
-      .attr("id", "rect_bar")
       .attr("class", "x")
       .attr("transform", function(d) { return translate(-1, yScale(d.Revenue)); })
       .attr("x", (d) => xScale(d.Date))
