@@ -52,6 +52,12 @@
   fill-opacity:1;
    font-family: 'Lato', sans-serif;
 }
+.x:hover {
+  /* fill: blue; */
+  stroke: orange;
+  stroke-width: 4px;
+  stroke-opacity: 1;
+}
 .y.axis{
   font-family: 'Lato', sans-serif;
 }

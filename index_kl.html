@@ -14,7 +14,7 @@
     <text id="title" x="825" y="70" text-anchor="middle" font-size="50">Top 100 IMDB Movies</text>
     <text class="overview" x="825" y="100" text-anchor="middle">We examined the top 100 rated movies on IMDB </text>
     <text class="overview" x="825" y="120" text-anchor="middle">for revenue in order of rating and time.</text>
- 
+
     <foreignobject class="infobox" x="560" y="135" width="800" height="300">
       <div class="mainInfo">
         <div class="row">
@@ -75,12 +75,12 @@
     </foreignobject>
   </svg>
 <script>
-  
+
 //Calculates a movies inflation-adjusted gross, in 2018 dollars
 function calculateInflation(d, _ticketMap) {
     //Divide movie's original revenue by the average ticket price in the year it was released
     originalYear = d.Year
-    
+
     //if year does not exist in ticket price lookup table
     //set it to the price of ticket in 1929
     if( ! _ticketMap.get(String(originalYear)).avg_ticket) {
@@ -97,9 +97,9 @@ function calculateInflation(d, _ticketMap) {
 }
 //Prepares the raw ImDB data scraped from webpages.
 function mutateRow(row) {
-  
+
   row["Date"] = new Date(row["Date"]);
-    
+
   var revenue;
   if(row["Gross"]=="N/A"){
     revenue = 0;
@@ -110,7 +110,7 @@ function mutateRow(row) {
   }
   row["Revenue"] = revenue;
   row["Rating"] = Number(row["Rating"]);
-  
+
   if(row["Gross"=="N/A"]){
     row["Adjusted"] = 0;
   }
@@ -121,8 +121,8 @@ function mutateRow(row) {
     // console.log(ticketMap.get(originalYear));
     if( ticketMap.get(originalYear)==undefined) {
         num_tickets_sold = revenue / ticketMap.get(String(1929)).avg_ticket
-        
-        
+
+
     } else {
       num_tickets_sold = revenue / ticketMap.get(String(originalYear)).avg_ticket
     };
@@ -163,7 +163,7 @@ function plot(){
     var vert_padding = 70;
     var horz_padding = 150;
     var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
-    
+
     //creating svg, setting origin according to padding
     var svg = d3.select("#revenue-graph")
     .attr("height", height + 2 * vert_padding)
@@ -235,10 +235,11 @@ function plot(){
     var xLine = svg.selectAll(".x")
       .data(data)
       .enter().append("rect")
+      .attr("id", "rect_bar")
       .attr("class", "x")
       .attr("transform", function(d) { return translate(-1, yScale(d.Revenue)); })
       .attr("x", (d) => xScale(d.Date))
-      .attr("width",4)
+      .attr("width",8)
       .attr("height", (d) => height-yScale(d.Revenue))
       .attr("fill", function (d) {
         var budget = (d.Budget.replace(/,|\$/g, ''))
@@ -262,7 +263,7 @@ function plot(){
         document.getElementById("moviePoster").src = d.Small_Poster
       });
 
-    
+
     // var circles = svg.selectAll(".circle")
     // .data(data)
     // .enter().append("circle")
@@ -321,7 +322,7 @@ d3.tsv("ticket_inflation.txt",mutateRowToo,function(error, tdata){
   ticketData = tdata;
   ticketMap = d3.map(ticketData, function(d) {return d.Year ; });
   d3.csv("data.csv", mutateRow, callback);
-  
+
 });
 // d3.csv("data.csv", mutateRow, callback);
 // d3.queue()
@@ -330,6 +331,6 @@ d3.tsv("ticket_inflation.txt",mutateRowToo,function(error, tdata){
 //     .await(callback);
 
 </script>
-    
+
 </body>
 </html>
