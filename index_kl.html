@@ -58,7 +58,7 @@
               <td id="movieBudget">Budget</td>
             </tr>
             <tr>
-              <th>Gross:</th>
+              <th>Domestic Gross:</th>
               <td id="movieGross">Gross</td>
             </tr>
             <tr>
@@ -142,7 +142,8 @@ var data;
 var ticketData;
 var ticketMap;
 var svg;
-
+var XTYPE = "byDate";
+var VERT_PAD, HORZ_PAD, HEIGHT, WIDTH;
 function callback(error, movieData){
   data=movieData.filter(function (d){return d.Gross!="N/A" && d.Budget!="N/A";});
   data=data.slice(0,250);
@@ -150,6 +151,7 @@ function callback(error, movieData){
   plot("byDate","byRevenue");
   // plot("byRank");
 }
+
 
 function plot(xType,yType){
 
@@ -160,6 +162,10 @@ function plot(xType,yType){
     var horz_padding = 150;
     var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
 
+    VERT_PAD = vert_padding;
+    HORZ_PAD = horz_padding;
+    WIDTH = width;
+    HEIGHT = height;
     //creating svg, setting origin according to padding
     svg = d3.select("#revenue-graph")
     .attr("height", height + 2 * vert_padding)
@@ -167,11 +173,29 @@ function plot(xType,yType){
 
     svg.selectAll(".rect").remove();
     svg.selectAll(".x.axis").remove();
-    svg.selectAll(".y.axix").remove();
+    svg.selectAll(".y.axis").remove();
+    svg.selectAll(".voronoi").remove();
     svg.selectAll("g").remove();
     svg = svg.attr("padding", "3px").append("g").attr("transform", translate(horz_padding,vert_padding));
 
     svg.selectAll("*").remove();
+    
+    /*//voronoi attempt
+    // This draws from https://bl.ocks.org/mbostock/4060366
+    var voronoi = d3.geom.voronoi()
+        .x(function(d) { return XTYPE=="byRank" ? xScale(d.Rank): xScale(d.Date); })
+        .y(function(d) { return yScale(d.Revenue); })
+        .clipExtent([[-HORZ_PAD, -VERT_PAD], [WIDTH + HORZ_PAD, HEIGHT + VERT_PAD]]);
+    
+    var voronoiGroup = svg.append("g")
+        .attr("class", "voronoi")
+    
+    voronoiGroup.selectAll("path")
+    .data(voronoi.polygon(d3.merge(data.map(function(d) { return d.values; }))))
+    .enter().append("path")
+      .attr("d", function(d) { return d ? "M" + d.join("L") + "Z" : null; })
+      .on("mouseover", mouseover)
+      .on("mouseout", mouseout);*/
 
     //background for mouse move
     svg.append("rect")
@@ -409,6 +433,8 @@ function plot(xType,yType){
         d3.select("#movieTickets").text(formatTickets(d.Tickets))
         document.getElementById("moviePoster").src = d.Small_Poster
       });
+    
+    
 
 
     // var circles = svg.selectAll(".circle")
@@ -462,6 +488,7 @@ function plot(xType,yType){
       // circles.attr("cx", d =>xScaleFishEye(d.Date));
       svg.select(".x.axis").call(xAxis);
     }
+    
 
 
 }
