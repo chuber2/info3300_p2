@@ -1,0 +1,98 @@
+#title{
+  font-family: 'Libre Baskerville', serif;
+}
+.overview{
+  font-family: 'Lato', sans-serif;
+}
+.description{
+  font-family: 'Lato', sans-serif;
+}
+* {
+    box-sizing: border-box;
+}
+
+/* Create three unequal columns that floats next to each other */
+.column {
+    float: left;
+    padding: 10px;
+}
+
+.left{
+  width: 20 %;
+}
+.right {
+  width: 20%;
+}
+
+.middle {
+  width: 30%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#moviePoster{
+  height:50px;
+  width:50px;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #c8c8c8;
+  shape-rendering: crispEdges;
+}
+.x{
+  fill-opacity:1;
+}
+.x.axis{
+  fill-opacity:1;
+   font-family: 'Lato', sans-serif;
+}
+.y.axis{
+  font-family: 'Lato', sans-serif;
+}
+body { font-family: 'Avenir Book', Calibri, sans-serif; }
+div.movieInfo {
+  border: solid black 1px;
+  width: 500px;
+  padding: 10px;
+  height: 350px;
+  max-height: 100%;
+}
+
+th {
+  font-family: 'Lato', sans-serif;
+  vertical-align: top;
+  text-align: left;
+  /*padding-right: 10px;*/
+}
+td {
+  font-family: 'Lato', sans-serif;
+  width: 100%;
+}
+
+table{
+  height: 100%;
+}
+
+#revenue-graph path, #revenue-graph line {
+fill: none;
+stroke: #333;
+}
+
+#revenue-graph line {
+shape-rendering: crispEdges;
+}
+
+#revenue-graph .bar{
+  stroke: darkred;
+  stroke-width: 5;
+}
+.background {
+fill: none;
+pointer-events: all;
+}
