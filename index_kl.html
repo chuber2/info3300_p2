@@ -232,6 +232,56 @@ function plot(){
             "stroke-dasharray":"5,5"
         });
 
+    //append legend
+    svg.append("rect")
+    .attr("id", "legend")
+    .attr("x", 95)
+    .attr("y", 95)
+    .attr("width", 130)
+    .attr("height", 90)
+    .style("fill", "#FFFFF");
+    svg.append("rect")
+    .attr("width", "16px")
+    .attr("height", "16px")
+    .attr("fill", "#90ee90")
+    .attr("x", 100)
+    .attr("y", 100);
+    svg.append("text")
+    .text("Little Profit")
+    .attr("x", 125)
+    .attr("y", 115);
+    svg.append("rect")
+    .attr("width", "16px")
+    .attr("height", "16px")
+    .attr("fill", "#013220")
+    .attr("x", 100)
+    .attr("y", 120);
+    svg.append("text")
+    .text("Large Profit")
+    .attr("x", 125)
+    .attr("y", 135);
+    svg.append("rect")
+    .attr("width", "16px")
+    .attr("height", "16px")
+    .attr("fill", "#FFA1A1")
+    .attr("x", 100)
+    .attr("y", 140);
+    svg.append("text")
+    .text("Little Loss")
+    .attr("x", 125)
+    .attr("y", 155);
+    svg.append("rect")
+    .attr("width", "16px")
+    .attr("height", "16px")
+    .attr("fill", "#E80C0C")
+    .attr("x", 100)
+    .attr("y", 160);
+    svg.append("text")
+    .text("Large Loss")
+    .attr("x", 125)
+    .attr("y", 175);
+
+
     var xLine = svg.selectAll(".x")
       .data(data)
       .enter().append("rect")

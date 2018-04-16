@@ -61,6 +61,12 @@
 .y.axis{
   font-family: 'Lato', sans-serif;
 }
+#legend {
+  fill: #EEE;
+  stroke: black;
+  stroke-width: 2px;
+  stroke-opacity: 1;
+}
 body { font-family: 'Avenir Book', Calibri, sans-serif; }
 div.movieInfo {
   border: solid black 1px;
