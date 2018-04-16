@@ -67,9 +67,9 @@
 }
 #legend {
   fill: #EEE;
-  stroke: black;
-  stroke-width: 2px;
-  stroke-opacity: 1;
+ /* stroke: black;*/
+  /*stroke-width: 2px;
+  stroke-opacity: 1;*/
 }
 body { font-family: 'Avenir Book', Calibri, sans-serif; }
 div.movieInfo {

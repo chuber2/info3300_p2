@@ -82,7 +82,7 @@
   </svg>
 <script>
 
-//Calculates a movies inflation-adjusted gross, in 2018 dollars
+//Calculates a movies inflation-adjusted gross, in 2018 
 function calculateInflation(d, _ticketMap) {
     //Divide movie's original revenue by the average ticket price in the year it was released
     originalYear = d.Year
@@ -278,7 +278,7 @@ function plot(xType){
             "stroke-dasharray":"5,5"
         });
 
-    //append legend
+   /* //append legend
     svg.append("rect")
     .attr("id", "legend")
     .attr("x", 95)
@@ -325,7 +325,63 @@ function plot(xType){
     svg.append("text")
     .text("Large Loss")
     .attr("x", 125)
-    .attr("y", 175);
+    .attr("y", 175);*/
+    
+    //new legend
+    
+    //define the gradient properties.
+    
+    //the gradient element needs to be nested in a defs element (thanks to this tutorial: v]https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-svg-gradient.html )
+    var defs = svg.append("defs");
+    
+    //Append the gradient element to the defs element
+    var linearGradient = defs.append("linearGradient")
+        .attr("id", "legend-gradient")
+    
+    //define the direction of the gradient (in our case, a horizontal legend)
+    linearGradient
+        .attr("x1","0%")
+        .attr("y1","0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%")
+    //set the color at the left of gradient. (red)
+    linearGradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#E80C0C")
+    //light red
+    linearGradient.append("stop")
+        .attr("offset", "33%")
+        .attr("stop-color", "#FFA1A1")
+    //light green
+    linearGradient.append("stop")
+        .attr("offset", "67%")
+        .attr("stop-color", "#90ee90")
+    //dark green
+    linearGradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#013220")
+    
+    //draw the legend w/ ref to gradient
+    svg.append("rect")
+        .attr("id", "legend")
+        .attr("x", 60)
+        .attr("y", 95)
+        .attr("width", 310)
+        .attr("height", 30)
+        .style("fill", "url(#legend-gradient)");
+    //right end legend label
+    svg.append("text")
+        .text("Profit")
+        .attr("x", 370)
+        .attr("y", 80)
+        .attr("text-anchor","end");
+    
+    svg.append("text")
+        .text("Loss")
+        .attr("x", 60)
+        .attr("y", 80);
+        
+
 
     var xLine = svg.selectAll(".x")
       .data(data)
