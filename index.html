@@ -1,322 +1,547 @@
 <!DOCTYPE html>
-<html>
+<html style="width:100%;height:100%;">
 <head>
   <title>Top 250 Movies Visualization</title>
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="d3-plugins/fisheye/fisheye.js"></script>
-  <style>
-  body { font-family: 'Alegreya Sans', Calibri, sans-serif; }
-  svg { border: solid #ccc 1px; }
-  line.actualValue { stroke: #008837; stroke-width: 4; opacity: 0.3; stroke-dasharray: 1 6; stroke-linecap: round; }
-  line.meanValue { stroke: #7b3294; stroke-width: 4; opacity: 0.3; }
-  .bar rect {
-    fill: darkred;
-  }
-  .bar text {
-    fill: #fff;
-    font: 10px sans-serif;
-  }
-  svg { border: solid black 1px; }
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+      <script src="https://d3js.org/d3-queue.v3.min.js"></script>
 
-  div.movieInfo {
-    border: solid black 1px;
-    width: 500px;
-    padding: 10px;
-    height: 350px;
-    /* max-width: 100%; */
-    max-height: 100%;
-  }
+  <script src="fisheye.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Lato|Libre+Baskerville" rel="stylesheet">
+  <link rel = "stylesheet" type = "text/css" href = "style_kl.css" />
+  <script src="d3_code_toggle_yn.js" charset="utf-8"></script>
 
-  p.movieText {
-    padding-left: 10px;
-  }
-  h5 {
-    display: inline;
-  }
-  th {
-    vertical-align: top;
-    text-align: right;
-    padding-right: 10px;
-    /* border: solid black 1px; */
-  }
-  td {
-    border: solid black 1px;
-    width: 100%;
-  }
-  #movieSummary {
-    font-size: 15px;
-  }
-  table{
-    height: 100%;
-  }
-
-  #moviePoster {
-    width: 182px;
-    height: 268px;
-    float: left;
-  }
-  div.movieDescriptions{
-    float: right;
-    width: 300px;
-  }
-
-
-</style>
 </head>
-<body>
-  <h1>Top 250 Movies Of All Time</h1>
-  <svg id="revenue-graph"></svg>
-  <div class="movieInfo">
-    <div class="movieDescriptions">
-      <table>
-        <tr>
-          <th>Title</th>
-          <td id="movieTitle">Movie Title</td>
-        </tr>
-        <tr>
-          <th>Director</th>
-          <td id="movieDirector">Director</td>
-        </tr>
-        <tr>
-          <th>Rating</th>
-          <td id="movieRating">Rating</td>
-        </tr>
-        <tr>
-          <th>Year</th>
-          <td id="movieYear">Year</td>
-        </tr>
-        <tr>
-          <th>Summary</th>
-          <td id="movieSummary">
-            <br>
-            <br><br><br><br><br>
-          </td>
-        </tr>
-        <tr>
-          <th>Genre</th>
-          <td id="movieGenre">Genre</td>
-        </tr>
-        <tr>
-          <th>Budget</th>
-          <td id="movieBudget">Budget</td>
-        </tr>
-        <tr>
-          <th>Gross</th>
-          <td id="movieGross">Gross</td>
-        </tr>
+<body style="width:100%;height:100%;margin:0;">
+  <svg id="revenue-graph" height="100%" width="100%">
+    <text id="title" x="885" y="70" text-anchor="middle" font-size="50">Top 250 IMDB Movies</text>
+    <text class="overview" x="885" y="105" text-anchor="middle">We examined the top 250 rated movies on IMDB </text>
+    <text class="overview" x="885" y="125" text-anchor="middle">for revenue in order of ranking and time.</text>
 
-      </table>
+    <foreignobject class="infobox" x="610" y="135" width="800" height="300">
+      <div class="mainInfo">
+        <div class="row">
+          <div class="column left ">
+          <img id="moviePoster" src="http://www.backgroundsbymaheu.com/_resources/common/products/full/thumb.aspx?src=kelly+dark+gray%2Ejpg&width=350&crop=false" alt="Movie Poster" style="height:110px; width:75px;">
+          </div>
+          <div class="column middle">
+            <table>
+              <tr>
+                <th>Title:</th>
+                <td id="movieTitle">Movie Title</td>
+              </tr>
+              <tr>
+                <th>Director:</th>
+                <td id="movieDirector">Director</td>
+              </tr>
+              <tr>
+                <th>Year:</th>
+                <td id="movieYear">Year</td>
+              </tr>
+              <tr>
+                <th>Rating:</th>
+                <td id="movieRating">Rating</td>
+              </tr>
+              <tr>
+              <th>Ranking:</th>
+              <td id="movieRanking">Ranking</td>
+            </tr>
+            </table>
+          </div>
+        <div class="column right">
+          <table>
+            <tr>
+              <th>Genre:</th>
+              <td id="movieGenre">Genre</td>
+            </tr>
+            <tr>
+              <th>Budget:</th>
+              <td id="movieBudget">Budget</td>
+            </tr>
+            <tr>
+              <th>Domestic Gross:</th>
+              <td id="movieGross">Gross</td>
+            </tr>
+            <tr>
+              <th>Tickets Sold:</th>
+              <td id="movieTickets">
+              </td>
+            </tr>
+
+          </table>
+        </div>
+      </div>
     </div>
 
-    <img id="moviePoster" src="http://www.backgroundsbymaheu.com/_resources/common/products/full/thumb.aspx?src=kelly+dark+gray%2Ejpg&width=350&crop=false" alt="Movie Poster">
+    </foreignobject>
+    <foreignobject x="1300" y="50" width="300" height="50">
+      <div id="xButton">
+      </div>
+    </foreignobject>
+      <foreignobject x="1300" y="120" width="300" height="50">
+      <div id="yButton"> </div>
+     </foreignobject>
+     <foreignobject x="200" y="120" width="300" height = "50">
+      <div>
+      </div>
+     </foreignobject>
 
-  </div>
+  </svg>
+<script>
 
-  <script>
-      var test;
-      var isAbsolute = true;
-      var isDate = true;
-      var ticket_data;
-      var movie_data;
-  //var fisheye = d3.fisheye.cartesian()
-  
-  //Prepares the raw ImDB data scraped from webpages.
-  function mutateRow(row) {
-    
-    row["Date"] = new Date(row["Date"]);
-      
-    if(row["Gross"]=="N/A"){
-      row["Revenue"] = 0;
-    }
-    else{
-      //format the dollar amount into a nice number
-      row["Revenue"] = Number(row["Gross"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
-    }
-    row["Rating"] = Number(row["Rating"]);
-    row["Year"] = Number(row["Year"]);
-    
-    //console.log(row);
-    return row;
+//represent current x y axis settings
+var currX = "Date";
+var currY = "Revenue";
+
+//Prepares the raw ImDB data scraped from webpages.
+function mutateRow(row) {
+
+  row["Date"] = new Date(row["Date"]);
+
+  var revenue;
+  if(row["Gross"]=="N/A"){
+    revenue = 0;
   }
+  else{
+    //format the dollar amount into a nice number
+    revenue = Number(row["Gross"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
+  }
+  row["Revenue"] = revenue;
+  row["Rating"] = Number(row["Rating"]);
+  row["Rank"] = Number(row["Ranking"]);
+  if(row["Gross"=="N/A"]){
+    row["Adjusted"] = 0;
+  }
+  else{
+    var originalYear = String(row["Year"]);
+    // console.log(originalYear);
+    // console.log(revenue);
+    // console.log(ticketMap.get(originalYear));
+    if( ticketMap.get(originalYear)==undefined) {
+        num_tickets_sold = revenue / ticketMap.get(String(1929)).avg_ticket
 
-  //Prepares the average ticket price data.
+
+    } else {
+      num_tickets_sold = revenue / ticketMap.get(String(originalYear)).avg_ticket
+    };
+    row["Tickets"] = num_tickets_sold;
+    // console.log(num_tickets_sold);
+    ticket_2018  = ticketMap.get("2018").avg_ticket;
+    var yearsBetween = 2018-Number(row["Year"]);
+    // console.log(yearsBetween);
+    var adjusted_rev = revenue*Math.pow(1.0322,yearsBetween);
+
+    row["Adjusted"]= adjusted_rev;
+    // console.log(adjusted_rev);
+  };
+  row["Year"] = Number(row["Year"]);
+  // console.log(row);
+
+   return row;
+}
+ //Prepares the average ticket price data.
   function mutateRowToo(row) {
       row["Year"] = Number(row["Year"]);
       row["avg_ticket"] = Number(row["avg_ticket"].replace("$",'').replace(/,/g,"").replace(/ /g,""));
-      console.log(row);
-      
+      // console.log(row);
+
       return row;
-}
-
-//Calculates a movies inflation-adjusted gross, in 2018 dollars
-function calculateInflation(d, _ticketMap) {
-    //Divide movie's original revenue by the average ticket price in the year it was released
-    originalYear = d.Year
-    num_tickets_sold = d.Revenue / _ticketMap.get(String(originalYear)).avg_ticket
-    //this is now an estimate of how many tickets were sold
-    //multiply this number by the cost of a ticket in 2018.
-    ticket_2018  = _ticketMap.get("2018").avg_ticket
-    adjusted_revenue = num_tickets_sold * ticket_2018;
-    
-    return adjusted_revenue;
-    
-}
-
-//Called with the Y-select onChange. Toggles the Revenue between adjusted for inflation and not.
-function change() {
-    
-    console.log("change was called!!")
-    var state = d3.select("#y_select").node().value
-    if( state == "absolute") {
-        isAbsolute = true
-        console.log(isAbsolute);
-      
-    } else if (state == "inflated"){
-        isAbsolute = false;
-        console.log(isAbsolute);
-
-    }
-    
-    var stateX =  d3.select("#x_select").node().value
-    if( stateX == "date") {
-        isDate = true;
-        console.log(isDate);
-      
-    } else if (stateX == "rank"){
-        isDate = false;
-        console.log(isDate);
-    }
-    
-    //update the graph to reflect the change in state.
-    d3.queue()
-        .defer(d3.tsv, "ticket_inflation.txt", mutateRowToo)
-        .defer(d3.csv, "data.csv", mutateRow)
-        .await(callback);
-}
-
-  function callback(error, ticketData, movieData){
-    
-    //debugging
-    console.log(movieData);
-    console.log(ticketData);
-    
-    /*SVG formatting and setup*/  
-    var height = 400;
-    var width = 1000;
-    var vert_padding = 30;
-    var horz_padding = 90;
-    var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
-    
-    var svg = d3.select("#revenue-graph")
-    .attr("height", height + 2 * vert_padding)
-    .attr("width", width + 2 * horz_padding)
-    .attr("padding", "3px");
-      
-    /*create an array map from the ticket data for easy look up*/
-    var ticketMap = d3.map(ticketData, function(d) {return d.Year ; });
-     /* test = ticketMap;
-    console.log(ticketMap)*/
-
-    var g = svg.append("g").attr("transform", translate(horz_padding,vert_padding));
-    /*var xScale = d3.scaleTime()
-    .domain(d3.extent(movieData, d => d.Date))
-    .range([0, width]);*/
-    console.log(isDate)
-    var date_scale = d3.scaleTime()
-        .domain(d3.extent(movieData, d => d.Date))
-        .range([0, width]);
-    var rank_scale = d3.scaleLinear()
-        .domain(d3.extent(movieData, d=> d.Rank))
-        .range([0, width]);
-    var xScale = isDate ? date_scale : rank_scale
-    
-    
-    var yScale = d3.scaleLinear()
-    .domain([0, d3.max(movieData, function(d) { return d.Revenue; })])
-    .range([height, 0]);
-
-    
-    var groups = g.selectAll("g")
-    .data(movieData)
-    .enter().append("g")
-    .attr("class", "bar")
-    .attr("transform", function(d) { return translate(xScale(isDate ? d.Date : d.Rank), yScale(d.Revenue)); });
-    
-
-
-    var rects = groups.append("rect")
-    .attr("x", 1)
-    .attr("width", 2)
-    .attr("height", function(d) { return height - yScale(d.Revenue); })
-    .on("mouseover", function (d) {
-      d3.select("#movieTitle").text(d.Title)
-      d3.select("#movieDirector").text(d.Director)
-      d3.select("#movieRating").text(d.Rating)
-      d3.select("#movieYear").text(d.Year)
-      d3.select("#movieSummary").text(d.Summary)
-      d3.select("#movieGenre").text(d.Genre)
-      d3.select("#movieBudget").text(d.Budget)
-      d3.select("#movieGross").text(d.Gross)
-      document.getElementById("moviePoster").src = d.Small_Poster
-    });
-
-
-    var circles = groups.append("circle")
-    .attr("cx", 1)
-    .attr("r", function (d) {
-      var budget = (d.Budget.replace(/,|\$/g, ''))
-      //console.log(budget);
-      var gross = (d.Gross.replace(/,|\$/g, ''))
-      //console.log(gross);
-      return 5*Math.log((gross/budget));})
-    .attr("cy", 0)//function(d) { return height - yScale(d.Revenue); })
-    .style("opacity", .3)
-    .style("fill", "#489075")
-    .on("mouseover", function (d) {
-      d3.select("#movieTitle").text(d.Title)
-      d3.select("#movieDirector").text(d.Director)
-      d3.select("#movieRating").text(d.Rating)
-      d3.select("#movieYear").text(d.Year)
-      d3.select("#movieSummary").text(d.Summary)
-      d3.select("#movieGenre").text(d.Genre)
-      d3.select("#movieBudget").text(d.Budget)
-      d3.select("#movieGross").text(d.Gross)
-      document.getElementById("moviePoster").src = d.Small_Poster
-    });
-    var circles = groups.append("circle")
-    .attr("cx", 1)
-    .attr("r", 5)
-    .style("opacity", .6);
-
-    g.append("g")
-    .attr("transform", translate(0,height))
-    .call(d3.axisBottom(xScale));
-    g.append("g")
-    .attr("transform", translate(0,0))
-    .call(d3.axisLeft(yScale));
   }
+var data;
+var ticketData;
+var ticketMap;
+var svg;
+var XTYPE = "byDate";
+var VERT_PAD, HORZ_PAD, HEIGHT, WIDTH;
+function callback(error, movieData){
+  data=movieData;
+  // data=movieData.filter(function (d){return d.Gross!="N/A" && d.Budget!="N/A";});
+  data=data.slice(0,250);
 
-  //d3.csv("data.csv", mutateRow, callback);
-d3.queue()
-.defer(d3.tsv, "ticket_inflation.txt", mutateRowToo)
-.defer(d3.csv, "data.csv", mutateRow)
-.await(callback);
+  plot("byDate","byRevenue");
+  // plot("byRank");
+}
+
+
+function plot(xType,yType){
+
+    //SVG formatting and setup
+    var height = 750;
+    var width = 1500;
+    var vert_padding = 70;
+    var horz_padding = 150;
+    var translate = function (x, y) { return "translate(" + x + "," + y + ")"; };
+
+    VERT_PAD = vert_padding;
+    HORZ_PAD = horz_padding;
+    WIDTH = width;
+    HEIGHT = height;
+    //creating svg, setting origin according to padding
+    svg = d3.select("#revenue-graph")
+    .attr("height", height + 2 * vert_padding)
+    .attr("width", width + 2 * horz_padding);
+
+    svg.selectAll(".rect").remove();
+    svg.selectAll(".x.axis").remove();
+    svg.selectAll(".y.axis").remove();
+    svg.selectAll(".voronoi").remove();
+    svg.selectAll("g").remove();
+    svg = svg.attr("padding", "3px").append("g").attr("transform", translate(horz_padding,vert_padding));
+
+    svg.selectAll("*").remove();
+    
+    /*//voronoi attempt
+    // This draws from https://bl.ocks.org/mbostock/4060366
+    var voronoi = d3.geom.voronoi()
+        .x(function(d) { return XTYPE=="byRank" ? xScale(d.Rank): xScale(d.Date); })
+        .y(function(d) { return yScale(d.Revenue); })
+        .clipExtent([[-HORZ_PAD, -VERT_PAD], [WIDTH + HORZ_PAD, HEIGHT + VERT_PAD]]);
+    
+    var voronoiGroup = svg.append("g")
+        .attr("class", "voronoi")
+    
+    voronoiGroup.selectAll("path")
+    .data(voronoi.polygon(d3.merge(data.map(function(d) { return d.values; }))))
+    .enter().append("path")
+      .attr("d", function(d) { return d ? "M" + d.join("L") + "Z" : null; })
+      .on("mouseover", mouseover)
+      .on("mouseout", mouseout);*/
+
+    //background for mouse move
+    svg.append("rect")
+    .attr("transform", translate(0,vert_padding*2))
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height);
+
+    var startDate = new Date(1900,01,01);
+    var endDate = Date.now();
+    //setting up scales
+    if(xType=="byDate"){
+      var xScale = d3.time.scale()
+      .domain([startDate, endDate])
+      .range([0, width]);
+    }
+    if(xType=="byRank"){
+      var xScale = d3.scale.linear()
+      .domain([1,250])
+      .range([0,width]);  
+    }
+    
+
+    // console.log(startDate, endDate);
+    if(xType=="byDate"){
+      var xScaleFishEye = d3.fisheye.scale(d3.time.scale)
+      .domain([startDate, endDate])
+      .range([0, width]).focus(width/2).distortion(5);
+    }
+    if(xType=="byRank"){
+      var xScaleFishEye = d3.fisheye.scale(d3.scale.linear)
+      .domain([1,250])
+      .range([0, width]).focus(90).distortion(5);
+    }
+
+    if(yType=="byRevenue"){
+      var yScale = d3.scale.linear()
+      .domain([1, 1.3*d3.max(data, function(d) { return d.Revenue; })])
+      .range([height, 0]);
+    }
+    if(yType=="byAdjusted"){
+      var yScale = d3.scale.linear()
+     .domain([1, 1.35*d3.max(data, function(d) { return d.Adjusted; })])
+     .range([height, 0]);
+    }
+    // var yScale = d3.scale.log()
+    // .domain([1, 100000*d3.max(data, function(d) { return d.Revenue; })])
+    // .range([height, 0]);
+    var greenScale = d3.scale.log().domain([1,100])
+      .interpolate(d3.interpolateHcl)
+      .range([d3.rgb("#90ee90"), d3.rgb('#013220')]);
+    var redScale = d3.scale.linear().domain([1,0])
+      .interpolate(d3.interpolateHcl)
+      .range([d3.rgb("#FFA1A1"), d3.rgb('#E80C0C')]);
+    var circleScale = d3.scale.sqrt().domain([1, 100]).range([5,30]);
+
+    //setting up axes
+    var xAxis = d3.svg.axis().scale(xScaleFishEye).orient("bottom");
+    var yAxis = d3.svg.axis().scale(yScale).orient("left").tickFormat(d3.format("$,"));;
+
+    //Adding axes to svg
+    svg.append("g")
+    .attr("transform", translate(0,height))
+    .attr("class", "x axis")
+    .call(xAxis);
+    svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+    svg.append("text")
+    .attr("class","axis")
+    .attr("transform", translate(-72,5))
+    .attr("text-anchor","middle")
+    .attr("font-weight","800")
+    .text((yType=="byRevenue")?"Gross Revenue": "Adjusted Revenue");
+
+    svg.append("text")
+    .attr("class","axis")
+    .attr("transform", translate(width/2,800))
+    .attr("text-anchor","middle")
+    .attr("font-weight","800")
+    .text((xType=="byDate")?"Year":"Rank");
+
+    svg.append("text")
+    .attr("class","description")
+    .attr("transform", translate(1122,22))
+    .attr("text-anchor","middle")
+    .attr("font-weight","500")
+    .attr("font-size","16")
+    .text("X-axis:")
+
+    svg.append("text")
+    .attr("class","description")
+    .attr("transform", translate(1122,92))
+    .attr("text-anchor","middle")
+    .attr("font-weight","500")
+    .attr("font-size","16")
+    .text("Y-axis:")
+
+
+
+    //gridlines
+    svg.selectAll("line.horizontalGrid").data(yScale.ticks(7)).enter()
+    .append("line")
+        .attr(
+        {
+            "class":"horizontalGrid",
+            "x1" : 0,
+            "x2" : width,
+            "y1" : function(d){ return yScale(d);},
+            "y2" : function(d){ return yScale(d);},
+            "fill" : "none",
+            "shape-rendering" : "crispEdges",
+            "stroke" : "black",
+            "stroke-width" : "1px",
+            "stroke-opacity" : ".2",
+            "stroke-dasharray":"5,5"
+        });
+
+   /* //append legend
+    svg.append("rect")
+    .attr("id", "legend")
+    .attr("x", 95)
+    .attr("y", 95)
+    .attr("width", 130)
+    .attr("height", 90)
+    .style("fill", "#FFFFF");
+    svg.append("rect")
+    .attr("width", "16px")
+    .attr("height", "16px")
+    .attr("fill", "#90ee90")
+    .attr("x", 100)
+    .attr("y", 100);
+    svg.append("text")
+    .text("Little Profit")
+    .attr("x", 125)
+    .attr("y", 115);
+    svg.append("rect")
+    .attr("width", "16px")
+    .attr("height", "16px")
+    .attr("fill", "#013220")
+    .attr("x", 100)
+    .attr("y", 120);
+    svg.append("text")
+    .text("Large Profit")
+    .attr("x", 125)
+    .attr("y", 135);
+    svg.append("rect")
+    .attr("width", "16px")
+    .attr("height", "16px")
+    .attr("fill", "#FFA1A1")
+    .attr("x", 100)
+    .attr("y", 140);
+    svg.append("text")
+    .text("Little Loss")
+    .attr("x", 125)
+    .attr("y", 155);
+    svg.append("rect")
+    .attr("width", "16px")
+    .attr("height", "16px")
+    .attr("fill", "#E80C0C")
+    .attr("x", 100)
+    .attr("y", 160);
+    svg.append("text")
+    .text("Large Loss")
+    .attr("x", 125)
+    .attr("y", 175);*/
+    
+    //new legend
+    
+    //define the gradient properties.
+    
+    //the gradient element needs to be nested in a defs element (thanks to this tutorial: v]https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-svg-gradient.html )
+    var defs = svg.append("defs");
+    
+    //Append the gradient element to the defs element
+    var linearGradient = defs.append("linearGradient")
+        .attr("id", "legend-gradient")
+    
+    //define the direction of the gradient (in our case, a horizontal legend)
+    linearGradient
+        .attr("x1","0%")
+        .attr("y1","0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%")
+    //set the color at the left of gradient. (red)
+    linearGradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#E80C0C")
+    //light red
+    linearGradient.append("stop")
+        .attr("offset", "33%")
+        .attr("stop-color", "#FFA1A1")
+    //light green
+    linearGradient.append("stop")
+        .attr("offset", "67%")
+        .attr("stop-color", "#90ee90")
+    //dark green
+    linearGradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#013220")
+    
+    //draw the legend w/ ref to gradient
+    svg.append("rect")
+        .attr("id", "legend")
+        .attr("x", 60)
+        .attr("y", 35)
+        .attr("width", 310)
+        .attr("height", 30)
+        .style("fill", "url(#legend-gradient)");
+    //right end legend label
+    svg.append("text")
+        .attr("class","description")
+        .text("Profit")
+        .attr("x", 370)
+        .attr("y", 20)
+        .attr("text-anchor","end");
+    
+    svg.append("text")
+        .attr("class","description")
+        .text("Loss")
+        .attr("x", 60)
+        .attr("y", 20);
+        
+    var formatTickets = d3.format(",.4r");
+
+    var xLine = svg.selectAll(".x")
+      .data(data)
+      .enter().append("rect")
+      .attr("class", "x")
+      .attr("id", "line_bar")
+      .attr("transform", function(d) { return translate(-1, (yType=="byRevenue")? yScale(d.Revenue):yScale(d.Adjusted)); })
+      .attr("x", (d) => (xType=="byRank" ? xScale(d.Rank): xScale(d.Date)))
+      .attr("width",8)
+      .attr("height", (d) => (yType=="byRevenue")? height -yScale(d.Revenue): height - yScale(d.Adjusted))
+      .attr("fill", function (d) {
+        var budget = (d.Budget.replace(/,|\$/g, ''))
+        var gross = (d.Gross.replace(/,|\$/g, ''))
+        if(gross/budget>=1){
+          return greenScale(gross/budget);
+        }
+        else {
+          return redScale(gross/budget);
+        }})
+      .on("mouseover", function (d) {
+        d3.select("#movieTitle").text(d.Title)
+        d3.select("#movieDirector").text(d.Director)
+        d3.select("#movieRating").text(d.Rating)
+        d3.select("#movieYear").text(d.Year)
+        d3.select("#movieSummary").text(d.Summary)
+        d3.select("#movieGenre").text(d.Genre)
+        d3.select("#movieBudget").text(d.Budget)
+        d3.select("#movieGross").text(d.Gross)
+        d3.select("#movieRanking").text(d.Ranking)
+        d3.select("#movieTickets").text(formatTickets(d.Tickets))
+        document.getElementById("moviePoster").src = d.Small_Poster
+      });
+
+    svg.on("mousemove", function() {
+      var mouse = d3.mouse(this);
+      // console.log(mouse);
+      xScaleFishEye.focus(mouse[0]);
+      redraw();
+    });
+
+    function redraw() {
+      xLine.attr("x", d =>xScaleFishEye((xType=="byRank")? d.Rank :d.Date));
+      // circles.attr("cx", d =>xScaleFishEye(d.Date));
+      svg.select(".x.axis").call(xAxis);
+    }
+    
+
+
+}
+d3.tsv("ticket_inflation.txt",mutateRowToo,function(error, tdata){
+  ticketData = tdata;
+  ticketMap = d3.map(ticketData, function(d) {return d.Year ; });
+  d3.csv("data.csv", mutateRow, callback);
+
+});
+var q1 = noYesBtns('#xButton')
+            .nTxt('Date')
+            .yTxt('Rank')
+            .nBg('#D3D3D3') // string for unselected background for NO
+            .yBg('#D3D3D3') // string for unselected bg for YES
+            .nBgActive('black') // string for selected bg for NO
+            .yBgActive('black') // string for selected bg for YES
+            .on('_click', function () {
+                if(this.firstChild.data=="Rank"){
+                  currX = "Rank";
+                  if (currY == "Revenue"){
+                    plot("byRank","byRevenue");
+                  }
+                  if (currY == "Adjusted"){
+                    plot("byRank","byAdjusted");
+                  }
+                }
+                if(this.firstChild.data=="Date"){
+                  currX = "Date";
+                  if (currY == "Revenue"){
+                    plot("byDate","byRevenue");
+                  }
+                  if (currY == "Adjusted"){
+                    plot("byDate","byAdjusted");
+                  }
+                }
+            })
+            .render();
+var q1 = noYesBtns('#yButton')
+            .nTxt('Revenue')
+            .yTxt('Adjusted')
+            .nBg('#D3D3D3') // string for unselected background for NO
+            .yBg('#D3D3D3') // string for unselected bg for YES
+            .nBgActive('blue') // string for selected bg for NO
+            .yBgActive('blue') // string for selected bg for YES
+            .on('_click', function () {
+                if(this.firstChild.data=="Revenue"){
+                  currY = "Revenue";
+                  if (currX == "Rank"){
+                    plot("byRank","byRevenue");
+                  }
+                  if (currX == "Date"){
+                    plot("byDate","byRevenue");
+                  }
+                }
+                if(this.firstChild.data=="Adjusted"){
+                  currY = "Adjusted";
+                  if (currX == "Rank"){
+                    plot("byRank","byAdjusted");
+                  }
+                  if (currX == "Date"){
+                    plot("byDate","byAdjusted");
+                  }
+                }
+             })
+            .render();
 </script>
-    
-<button id = "inflation_toggle" onclick="changeRevenue()" value = "absolute"> Adjust the Revenue for Inflation </button>
-<label for = "y_select"> Y-Axis Variable</label>
-<select id="y_select" onchange= "change()">
-    <option selected = 
-            "selected" value = "absolute">Unadjusted Revenue</option>
-    <option value = "inflated">Revenue adjusted for Inflation</option>
-</select>
-    
-<label for = "x_select"> X-Axis Variable</label>
-<select id="x_select" onchange = "change()">
-    <option selected = 
-            "selected" value = "date">Date</option>
-    <option value = "rank">IMDB rank</option>
-   
-</select>
+
 </body>
 </html>
