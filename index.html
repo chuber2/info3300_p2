@@ -81,7 +81,7 @@
       <div id="yButton"> </div>
      </foreignobject>
      <foreignobject x="225" y="145" width="300" height = "50">
-       <div id = "noteBox" class = "notes">The darker the green, the greater the profit yield. Notice how few movies are red, meaning the greatest movies generally made a profit. </div>
+       <div id = "noteBox" class = "notes">The darker the green, the greater the profit yield. Notice how few movies are red; domestically, the greatest movies of all time generally turned a profit.</div>
      </foreignobject>
 
   </svg>
@@ -543,17 +543,17 @@ var q2 = noYesBtns('#yButton')
 
 function showInfo(currX, currY){
     if(currX=="Date"&&currY=="Revenue"){
-      d3.select("#noteBox").text("The darker the green, the greater the profit yield. Notice how few movies are red, meaning the greatest movies generally made a profit. ");
+      d3.select("#noteBox").text("The darker the green, the greater the profit yield. Notice how few movies are red; domestically, the greatest movies of all time generally turned a profit.");
     }
     if(currX=="Date"&&currY=="Adjusted"){
-      d3.select("#noteBox").text("Using 3.22% yearly to calculate the inflation-adjusted revenues, we can see that the best movies have actually made less money over time.");
+      d3.select("#noteBox").text("Using a 3.22% yearly rate to calculate the inflation-adjusted revenues, we see that domestic yields have decreased over time.");
     }
     if(currX=="Rank"&&currY=="Revenue"){
-      d3.select("#noteBox").text("The top 15 movies all did very well, but there isn't a noticeable trend afterwards.");
+      d3.select("#noteBox").text("The top 15 movies all performed very well.");
 
     }
     if(currX=="Rank"&&currY=="Adjusted"){
-      d3.select("#noteBox").text("Gone with the Wind really stands out here. Again, no easily discernable trend here.");
+      d3.select("#noteBox").text("Gone with the Wind really stands out here.");
     }
 }
 </script>
