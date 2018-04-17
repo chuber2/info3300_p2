@@ -80,9 +80,8 @@
       <foreignobject x="1300" y="120" width="300" height="50">
       <div id="yButton"> </div>
      </foreignobject>
-     <foreignobject x="200" y="120" width="300" height = "50">
-      <div>
-      </div>
+     <foreignobject x="225" y="145" width="300" height = "50">
+       <div id = "noteBox" class = "notes">The darker the green, the greater the profit yield. Notice how few movies are red, meaning the greatest movies generally made a profit. </div>
      </foreignobject>
 
   </svg>
@@ -153,8 +152,7 @@ var svg;
 var XTYPE = "byDate";
 var VERT_PAD, HORZ_PAD, HEIGHT, WIDTH;
 function callback(error, movieData){
-  data=movieData;
-  // data=movieData.filter(function (d){return d.Gross!="N/A" && d.Budget!="N/A";});
+  data=movieData.filter(function (d){return d.Gross!="N/A" && d.Budget!="N/A";});
   data=data.slice(0,250);
 
   plot("byDate","byRevenue");
@@ -510,10 +508,10 @@ var q1 = noYesBtns('#xButton')
                   if (currY == "Adjusted"){
                     plot("byDate","byAdjusted");
                   }
-                }
+                }showInfo(currX,currY);
             })
             .render();
-var q1 = noYesBtns('#yButton')
+var q2 = noYesBtns('#yButton')
             .nTxt('Revenue')
             .yTxt('Adjusted')
             .nBg('#D3D3D3') // string for unselected background for NO
@@ -538,9 +536,25 @@ var q1 = noYesBtns('#yButton')
                   if (currX == "Date"){
                     plot("byDate","byAdjusted");
                   }
-                }
+                } showInfo(currX,currY);
              })
             .render();
+
+function showInfo(currX, currY){
+    if(currX=="Date"&&currY=="Revenue"){
+      d3.select("#noteBox").text("The darker the green, the greater the profit yield. Notice how few movies are red, meaning the greatest movies generally made a profit. ");
+    }
+    if(currX=="Date"&&currY=="Adjusted"){
+      d3.select("#noteBox").text("Using 3.22% to calculate the inflation-adjusted revenues, we can see that the best movies have actually made less money over time.");
+    }
+    if(currX=="Rank"&&currY=="Revenue"){
+      d3.select("#noteBox").text("The top 15 movies all did very well, but there isn't a noticeable trend afterwards.");
+
+    }
+    if(currX=="Rank"&&currY=="Adjusted"){
+      d3.select("#noteBox").text("Gone with the Wind really stands out here. Again, no easily discernable trend here.");
+    }
+}
 </script>
 
 </body>

@@ -136,6 +136,9 @@ button.ny-btn:focus {
     outline:0;
 }
 
+.notes{
+  word-wrap: break-word;
+}
 
 
 
